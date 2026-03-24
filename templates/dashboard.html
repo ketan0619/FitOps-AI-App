@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>FitOps Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="glass">
+<img src="/static/logo.png" class="logo">
+
+<h1>FitOps AI</h1>
+<p class="tag">Build your Body like you Build your Code</p>
+
+<form action="/generate" method="POST" class="grid">
+<input name="age" placeholder="Age" required>
+<input name="height" placeholder="Height" required>
+<input name="weight" placeholder="Weight" required>
+
+<select name="gender">
+<option value="male">Male</option>
+<option value="female">Female</option>
+</select>
+
+<select name="diet_type">
+<option value="veg">Veg</option>
+<option value="nonveg">Non Veg</option>
+<option value="vegan">Vegan</option>
+</select>
+
+<button>Generate Plan</button>
+</form>
+
+</div>
+
+</body>
+</html>
