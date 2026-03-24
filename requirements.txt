@@ -2,3 +2,6 @@ Flask
 flask_sqlalchemy
 pymysql
 reportlab
+flake8
+bandit
+gunicorn
