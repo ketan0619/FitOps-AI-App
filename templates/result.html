@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="glass">
+<h2>BMI: {{result.bmi}}</h2>
+<p>Calories: {{result.calories}}</p>
+<p>Ideal Weight: {{result.ideal}}</p>
+
+<canvas id="chart"></canvas>
+
+<script>
+new Chart(document.getElementById('chart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['BMI'],
+        datasets: [{
+            data: [{{result.bmi}}]
+        }]
+    }
+});
+</script>
+
+<div class="cards">
+<div class="card">
+<h3>Workout</h3>
+<ul>
+{% for w in result.workout %}
+<li>{{w}}</li>
+{% endfor %}
+</ul>
+</div>
+
+<div class="card">
+<h3>Diet</h3>
+<ul>
+{% for d in result.diet %}
+<li>{{d}}</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+
+<a href="/download" class="btn">Download Report</a>
+</div>
+
+</body>
+</html>
