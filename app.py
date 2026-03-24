@@ -74,7 +74,7 @@ def download():
     styles = getSampleStyleSheet()
 
     content = [
-        Paragraph("FitOps AI", styles['Title']),
+        Paragraph("FitOps", styles['Title']),
         Paragraph("Build your Body like you Build your Code", styles['Normal']),
         Spacer(1,10)
     ]
