@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from fitops_ai import calculate_bmi, fitness_plan
+from fitops import calculate_bmi, fitness_plan
 
 app = Flask(__name__)
 
