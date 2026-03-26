@@ -80,5 +80,6 @@ jobs:
                      # Updating the image tags in the manifest file dynamically
                      sed -i "s|DOCKERHUB_USER|${{ vars.DOCKERHUB_USER }}|g" ~/manifests/deployment.yml
                      sed -i "s|DOCKER_TAG|${{ github.sha }}|g" ~/manifests/deployment.yml 
+                     cat ~/manifests/deployment.yml | grep image
                      # Applying the manifests
                      kubectl apply -f ~/manifests/
