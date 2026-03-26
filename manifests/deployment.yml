@@ -1,0 +1,19 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+      name: fitops-deployment
+spec:
+      replicas: 2
+      selector:
+          matchLabels:
+                 app: fitops
+      template:
+          metadata:
+                 labels:
+                     app: fitops
+          spec:
+             containers:
+             - name: fitops
+               image: DOCKERHUB_USER/fitops-app:DOCKER_TAG
+               ports:
+               - containerPort: 80
