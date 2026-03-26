@@ -83,3 +83,5 @@ jobs:
                      cat ~/manifests/deployment.yml | grep image
                      # Applying the manifests
                      kubectl apply -f ~/manifests/
+                     # checking rollout status
+                     kubectl rollout status deployment/my-app
