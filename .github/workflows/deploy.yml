@@ -61,15 +61,24 @@ jobs:
                      
 
 
-           - name: SSH to Master Node & run the app
+           - name: Copy K8s manifests to Master
+             uses: appleboy/scp-action@v1
+             with:
+                 host: ${{ secrets.MASTER_SSH_HOST }}
+                 username: ${{ secrets.MASTER_SSH_USER }}
+                 key: ${{ secrets.MASTER_SSH_PRIVATE_KEY }}
+                 source: "manifests/"
+                 target: "~/"
+
+           - name: Deploy to Kubernetes
              uses: appleboy/ssh-action@v1.0.3
              with:
                  host: ${{ secrets.MASTER_SSH_HOST }}
                  username: ${{ secrets.MASTER_SSH_USER }}
                  key: ${{ secrets.MASTER_SSH_PRIVATE_KEY }}
                  script: |
-                     echo "Running the app"
-                     export DOCKERHUB_USER=${{ vars.DOCKERHUB_USER }}
-                     export DOCKER_TAG=${{ github.sha }}
-                     echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ vars.DOCKERHUB_USER }} --password-stdin
-                     cd ~/devops && docker compose down && docker compose up -d --build --force-recreate --pull always
+                     # Updating the image tags in the manifest file dynamically
+                     sed -i "s|DOCKERHUB_USER|${{ vars.DOCKERHUB_USER }}|g" ~/manifests/deployment.yml
+                     sed -i "s|DOCKER_TAG|${{ github.sha }}|g" ~/manifests/deployment.yml 
+                     # Applying the manifests
+                     kubectl apply -f ~/manifests/
