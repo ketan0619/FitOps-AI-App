@@ -18,9 +18,9 @@ def get_db_uri():
     )
 
     return (
-    f"mysql+pymysql://{secret['username']}:{secret['password']}@"
-    f"{secret['host']}:{secret['port']}/{secret['dbname']}"
-)
+        f"mysql+pymysql://{secret['username']}:{secret['password']}@"
+        f"{secret['host']}:{secret['port']}/{secret['dbname']}"
+    )
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
@@ -96,13 +96,16 @@ def download():
     styles = getSampleStyleSheet()
 
     content = [
-        Paragraph("FitOps", styles['Title']),
-        Paragraph("Build your Body like you Build your Code", styles['Normal']), Spacer(1,10)
+        Paragraph("FitOps", styles['Title']), 
+        Paragraph(
+            "Build your Body like you Build your Code", 
+             styles['Normal']
+        ), Spacer(1, 10)
     ]
 
     for k, v in data.items():
         if isinstance(v, list):
-            v= ", ".join(v)
+            v = ", ".join(v)
         content.append(Paragraph(f"{k}: {v}", styles['Normal']))
 
     doc.build(content)
