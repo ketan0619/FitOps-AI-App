@@ -10,7 +10,7 @@ sudo systemctl enable --now docker
 # Create directory for keyrings
 sudo mkdir -p -m 755 /etc/apt/keyrings
 # Download the new signing key
-curl -fsSL https://pkgs.k8s.io | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io | sudo gpg --batch --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 # Add the new repository
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
