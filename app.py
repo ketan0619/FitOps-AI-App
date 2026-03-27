@@ -2,12 +2,13 @@ from flask import Flask, render_template, request, redirect, session, send_file
 from models import db, User, Progress
 import boto3
 import json
+import os
 from fitops import calculate_bmi, fitness_plan, ideal_weight, calories_needed
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 app = Flask(__name__)
-app.secret_key = "secret"
+app.secret_key = os.environ.get("SECRET_KEY")
 
 
 def get_db_uri():
@@ -114,4 +115,4 @@ def download():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=80)
