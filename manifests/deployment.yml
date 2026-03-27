@@ -17,3 +17,9 @@ spec:
                image: DOCKERHUB_USER/fitops-app:DOCKER_TAG
                ports:
                - containerPort: 80
+               env:
+               - name: SECRET_KEY
+                 valueFrom:
+                      secretKeyRef:
+                         name: app-secret
+                         key: SECRET_KEY
