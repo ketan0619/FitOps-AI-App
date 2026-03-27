@@ -6,4 +6,3 @@ flake8
 bandit
 gunicorn
 boto3
-pymysql
