@@ -12,7 +12,7 @@ sudo sed -i '/swap/s/^/#/' /etc/fstab
 
 # Repository setup
 sudo mkdir -p -m 755 /etc/apt/keyrings
-curl -fsSL https://pkgs.k8s.io | sudo gpg --batch --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io | sudo gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 sudo apt update
