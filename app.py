@@ -11,7 +11,7 @@ app.secret_key = "secret"
 
 
 def get_db_uri():
-    client = boto3.client("secretsmanager", region_name="ap-south-1")
+    client = boto3.client("secretsmanager", region_name="eu-north-1")
 
     secret = json.loads(
         client.get_secret_value(SecretId="fitops-db-secret")["SecretString"]
@@ -19,7 +19,7 @@ def get_db_uri():
 
     return f"mysql+pymysql://{secret['username']}:{secret['password']}@{secret['host']}:{secret['port']}/{secret['dbname']}"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/fitops'
+app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
