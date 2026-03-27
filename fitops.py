@@ -5,7 +5,7 @@ def calculate_bmi(weight, height):
 
 def ideal_weight(height):
     h = height / 100
-    return f"{round(18.5*h*h,1)} - {round(24.9*h*h,1)} kg"
+    return f"{round(18.5*h*h, 1)} - {round(24.9*h*h, 1)} kg"
 
 
 def calories_needed(weight, height, age, gender):
