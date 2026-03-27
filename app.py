@@ -20,7 +20,8 @@ def get_db_uri():
     return (
     f"mysql+pymysql://{secret['username']}:{secret['password']}@"
     f"{secret['host']}:{secret['port']}/{secret['dbname']}"
-    )
+)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -31,11 +32,13 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+
 @app.route('/')
 def dashboard():
     if 'user' not in session:
         return redirect('/login')
     return render_template('dashboard.html')
+
 
 @app.route('/generate', methods=['POST'])
 def generate():
@@ -59,7 +62,8 @@ def generate():
 
     return render_template('result.html', result=result)
 
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         user = User.query.filter_by(
@@ -71,7 +75,8 @@ def login():
             return redirect('/')
     return render_template('login.html')
 
-@app.route('/register', methods=['GET','POST'])
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         db.session.add(User(
@@ -82,6 +87,7 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
+
 @app.route('/download')
 def download():
     data = session.get('report')
@@ -91,17 +97,17 @@ def download():
 
     content = [
         Paragraph("FitOps", styles['Title']),
-        Paragraph("Build your Body like you Build your Code", styles['Normal']),
-        Spacer(1,10)
+        Paragraph("Build your Body like you Build your Code", styles['Normal']), Spacer(1,10)
     ]
 
-    for k,v in data.items():
-        if isinstance(v,list):
-            v=", ".join(v)
+    for k, v in data.items():
+        if isinstance(v, list):
+            v= ", ".join(v)
         content.append(Paragraph(f"{k}: {v}", styles['Normal']))
 
     doc.build(content)
     return send_file("report.pdf", as_attachment=True)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
