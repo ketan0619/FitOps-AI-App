@@ -77,6 +77,10 @@ jobs:
                  username: ${{ secrets.EC2_SSH_USER }}
                  key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
                  script: |
+                     # Creating secret
+                     kubectl delete secret app-secret --ignore-not-found
+                     kubectl create secret generic app-secret \
+                     --from-literal=SECRET_KEY="${{ secrets.SECRET_KEY }}"
                      # Updating the image tags in the manifest file dynamically
                      sed -i "s|DOCKERHUB_USER|${{ vars.DOCKERHUB_USER }}|g" ~/manifests/deployment.yml
                      sed -i "s|DOCKER_TAG|${{ github.sha }}|g" ~/manifests/deployment.yml 
