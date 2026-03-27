@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, send_file
 from models import db, User, Progress
-import boto3 
+import boto3
 import json
 from fitops import calculate_bmi, fitness_plan, ideal_weight, calories_needed
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -17,12 +17,16 @@ def get_db_uri():
         client.get_secret_value(SecretId="fitops-db-secret")["SecretString"]
     )
 
-    return f"mysql+pymysql://{secret['username']}:{secret['password']}@{secret['host']}:{secret['port']}/{secret['dbname']}"
+    return (
+    f"mysql+pymysql://{secret['username']}:{secret['password']}@"
+    f"{secret['host']}:{secret['port']}/{secret['dbname']}"
+    )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
 
 with app.app_context():
     db.create_all()
