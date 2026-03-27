@@ -96,11 +96,12 @@ def download():
     styles = getSampleStyleSheet()
 
     content = [
-        Paragraph("FitOps", styles['Title']), 
+        Paragraph("FitOps", styles['Title']),
         Paragraph(
-            "Build your Body like you Build your Code", 
-             styles['Normal']
-        ), Spacer(1, 10)
+            "Build your Body like you Build your Code",
+            styles['Normal']
+        ),
+        Spacer(1, 10)
     ]
 
     for k, v in data.items():
