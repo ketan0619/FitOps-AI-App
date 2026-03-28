@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+export DEBIAN_FRONTEND=noninteractive
+
 # 1. CHECK IF ALREADY INSTALLED
 if command -v kubeadm &> /dev/null; then
     echo "Kubernetes is already installed on Worker. Skipping package installation..."
