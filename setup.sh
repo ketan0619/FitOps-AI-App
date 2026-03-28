@@ -12,10 +12,10 @@ else
 
     sudo mkdir -p -m 755 /etc/apt/keyrings
     # FIX: Use the specific versioned URL (v1.31) to avoid GPG errors
-    curl -fsSL https://pkgs.k8s.io | \
-    sudo gpg --dearmor --batch --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | \
+    sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io /' | \
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | \
     sudo tee /etc/apt/sources.list.d/kubernetes.list
 
     sudo apt update
