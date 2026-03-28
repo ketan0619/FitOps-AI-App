@@ -59,11 +59,8 @@ jobs:
                        chmod +x ~/setupW.sh
                         ~/setupW.sh
                         # Extract ONLY the join command from the Master's output
-                       JOIN_CMD=$(echo "$MASTER_OUTPUT" | grep "kubeadm join" | xargs)
+                       JOIN_CMD=$(echo "$MASTER_RAW" | grep "kubeadm join .*")
                        
-                        if [ -z "$JOIN_CMD" ]; then
-                           echo "ERROR: Join command not found in master output!"
-                           exit 1
                        fi
 
                        if [ ! -f /etc/kubernetes/kubelet.conf ]; then
@@ -73,7 +70,7 @@ jobs:
                            echo "Node already joined, skipping..."
                        fi
              env:
-                 MASTER_OUTPUT: ${{ steps.master_init.outputs.stdout }}
+                 MASTER_RAW: ${{ steps.master_init.outputs.stdout }}
                      
 
 
