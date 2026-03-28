@@ -54,10 +54,22 @@ jobs:
                  host: ${{ secrets.WORKER_SSH_HOST }}
                  username: ${{ secrets.EC2_SSH_USER }}
                  key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+                 envs: MASTER_OUTPUT
                  script: |
                        chmod +x ~/setupW.sh
                         ~/setupW.sh
-                        sudo ${{ steps.master_init.outputs.stdout }}
+                        # Extract ONLY the join command from the Master's output
+                       JOIN_CMD=$(echo "$MASTER_OUTPUT" | grep "kubeadm join" | head -n 1)
+                       
+                       # Only run it if the node isn't already in a cluster
+                       if [ ! -f /etc/kubernetes/kubelet.conf ]; then
+                           echo "Joining cluster..."
+                           sudo $JOIN_CMD
+                       else
+                           echo "Node already joined."
+                       fi
+             env:
+                 MASTER_OUTPUT: ${{ steps.master_init.outputs.stdout }}
                      
 
 
