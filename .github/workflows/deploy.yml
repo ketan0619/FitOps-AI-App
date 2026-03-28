@@ -60,8 +60,6 @@ jobs:
                         ~/setupW.sh
                         # Extract ONLY the join command from the Master's output
                        JOIN_CMD=$(echo "$MASTER_RAW" | grep "kubeadm join .*")
-                       
-                       fi
 
                        if [ ! -f /etc/kubernetes/kubelet.conf ]; then
                            echo "Joining cluster with command: $JOIN_CMD"
