@@ -43,4 +43,5 @@ else
 fi
 
 # 3. ALWAYS OUTPUT JOIN COMMAND (Safe to run anytime)
-sudo kubeadm token create --print-join-command | xargs
+sudo kubeadm token create --print-join-command > ~/join-command.sh
+chmod 644 ~/join-command.sh
