@@ -58,23 +58,12 @@ jobs:
                  script: |
                        chmod +x ~/setupW.sh
                         ~/setupW.sh
-                        # Extract ONLY the join command from the Master's output
-                       JOIN_CMD=$(echo "$MASTER_RAW" | grep "kubeadm join .*" | head -n 1)
+                        if [ ! -f /etc/kubernetes/kubelet.conf ]; then
+                           echo "Fetching join command from Master..."
 
-                       if [ -z "$JOIN_CMD" ]; then
-                           echo "ERROR: The Master output was empty or invalid!"
-                           echo "Master Raw Output was: $MASTER_RAW"
-                           exit 1
-                       fi
-
-                       if [ ! -f /etc/kubernetes/kubelet.conf ]; then
-                           echo "Joining cluster with command: $JOIN_CMD"
+                           JOIN_CMD=$(curl -s http://${{ secrets.MASTER_PRIVATE_IP }}:8000/join-command.sh)
                            sudo $JOIN_CMD
-                       else
-                           echo "Node already joined, skipping..."
-                       fi
-             env:
-                 MASTER_RAW: ${{ steps.master_init.outputs.stdout }}
+                        fi
                      
 
 
