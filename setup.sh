@@ -1,13 +1,11 @@
 #!/bin/bash
 set -e
-echo "Ensuring environment is ready..."
-sudo swapoff -a
-sudo systemctl daemon-reload
-sudo systemctl enable --now docker
-sudo systemctl enable --now kubelet
-
-# Wait a few seconds for API to breathe
-sleep 5
+# echo "Ensuring environment is ready..."
+# sudo swapoff -a
+# sudo systemctl daemon-reload
+# sudo systemctl enable --now docker
+# sudo systemctl enable --now kubelet
+# sleep 5
 # 1. CHECK IF K8S IS ALREADY INSTALLED
 if command -v kubeadm &> /dev/null; then
     echo "Kubernetes is already installed. Skipping package installation..."
