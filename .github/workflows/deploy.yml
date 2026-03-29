@@ -52,7 +52,7 @@ jobs:
                   echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > master_key.pem
                   chmod 600 master_key.pem
                   scp -i master_key.pem -o StrictHostKeyChecking=no \
-                  ${{ secrets.EC2_SSH_USER }}@${{ secrets.MASTER_SSH_HOST }}:~/join_command.sh ./join_command.sh
+                  ${{ secrets.EC2_SSH_USER }}@${{ secrets.MASTER_SSH_HOST }}:~/join-command.sh ./join-command.sh
 
 
            - name: Upload join file to Worker
@@ -61,7 +61,7 @@ jobs:
                   host: ${{ secrets.WORKER_SSH_HOST }}
                   username: ${{ secrets.EC2_SSH_USER }}
                   key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-                  source: "join_command.sh"
+                  source: "join-command.sh"
                   target: "~/"
            
            - name: SSH to k8s Worker node & Execute the file
@@ -76,7 +76,7 @@ jobs:
                         ~/setupW.sh
                         if [ ! -f /etc/kubernetes/kubelet.conf ]; then
                              echo "Executing join command from file..."
-                             sudo ~/join_command.sh
+                             sudo ~/join-command.sh
                         else
                              echo "Already joined."
                          fi
