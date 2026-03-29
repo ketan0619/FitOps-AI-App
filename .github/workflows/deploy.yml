@@ -47,7 +47,25 @@ jobs:
                  source: setupW.sh
                  target: "~/"
 
+           - name: Download join file from Master
+             uses: appleboy/scp-action@v0.1.7
+             with:
+                 host: ${{ secrets.MASTER_SSH_HOST }}
+                 username: ${{ secrets.EC2_SSH_USER }}
+                 key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+                 download: true 
+                 source: "~/join_command.sh"
+                 target: "./"
 
+           - name: Upload join file to Worker
+             uses: appleboy/scp-action@v0.1.7
+             with:
+                  host: ${{ secrets.WORKER_SSH_HOST }}
+                  username: ${{ secrets.EC2_SSH_USER }}
+                  key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+                  source: "join_command.sh"
+                  target: "~/"
+           
            - name: SSH to k8s Worker node & Execute the file
              uses: appleboy/ssh-action@v1.0.3
              with:
@@ -59,13 +77,12 @@ jobs:
                        chmod +x ~/setupW.sh
                         ~/setupW.sh
                         if [ ! -f /etc/kubernetes/kubelet.conf ]; then
-                           echo "Fetching join command from Master..."
-
-                           JOIN_CMD=$(curl -s http://${{ secrets.MASTER_PRIVATE_IP }}:8000/join-command.sh)
-                           sudo $JOIN_CMD
-                        fi
+                             echo "Executing join command from file..."
+                             sudo ~/join_command.sh
+                        else
+                             echo "Already joined."
+                         fi
                      
-
 
            - name: Copy K8s manifests to Master
              uses: appleboy/scp-action@v1
