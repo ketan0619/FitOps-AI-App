@@ -48,14 +48,12 @@ jobs:
                  target: "~/"
 
            - name: Download join file from Master
-             uses: appleboy/scp-action@v0.1.7
-             with:
-                 host: ${{ secrets.MASTER_SSH_HOST }}
-                 username: ${{ secrets.EC2_SSH_USER }}
-                 key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-                 download: true 
-                 source: "~/join_command.sh"
-                 target: "./"
+             run: |
+                  echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > master_key.pem
+                  chmod 600 master_key.pem
+                  scp -i master_key.pem -o StrictHostKeyChecking=no \
+                  ${{ secrets.EC2_SSH_USER }}@${{ secrets.MASTER_SSH_HOST }}:~/join_command.sh ./join_command.sh
+
 
            - name: Upload join file to Worker
              uses: appleboy/scp-action@v0.1.7
