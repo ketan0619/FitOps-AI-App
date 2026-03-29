@@ -1,2 +1,2 @@
 # FitOps-Flask_App
-Deployed the 3-tier FitOps Flask App on K8s Cluster(EKS) by setting up a fully functional and automated DevSecOps Pipeline.
+Architected and deployed a 3-tier FitOps Flask application on AWS EKS using a fully automated DevSecOps pipeline, integrating SAST/DAST scanning workflows to ensure secure and scalable delivery.
