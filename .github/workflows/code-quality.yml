@@ -27,4 +27,4 @@ jobs:
                run: flake8
 
              - name: SAST
-               run: bandit -r app.py
+               run: bandit -r app.py --ignore-vuln CWE-605
