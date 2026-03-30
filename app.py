@@ -12,7 +12,7 @@ app.secret_key = os.environ.get("SECRET_KEY")
 
 
 def get_db_uri():
-    client = boto3.client("secretsmanager", region_name="us-east-1")
+    client = boto3.client("secretsmanager", region_name="eu-north-1")
 
     secret = json.loads(
         client.get_secret_value(SecretId="fitops-db-secret")["SecretString"]
