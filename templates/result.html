@@ -1,51 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>FitOps AI Result</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <div class="glass">
-<h2>BMI: {{result.bmi}}</h2>
-<p>Calories: {{result.calories}}</p>
-<p>Ideal Weight: {{result.ideal}}</p>
 
-<canvas id="chart"></canvas>
+    <img src="/static/logo.png" class="logo">
 
-<script>
-new Chart(document.getElementById('chart'), {
-    type: 'doughnut',
-    data: {
-        labels: ['BMI'],
-        datasets: [{
-            data: [{{result.bmi}}]
-        }]
-    }
-});
-</script>
+    <h2>Your Fitness Plan</h2>
 
-<div class="cards">
-<div class="card">
-<h3>Workout</h3>
-<ul>
-{% for w in result.workout %}
-<li>{{w}}</li>
-{% endfor %}
-</ul>
-</div>
 
-<div class="card">
-<h3>Diet</h3>
-<ul>
-{% for d in result.diet %}
-<li>{{d}}</li>
-{% endfor %}
-</ul>
-</div>
-</div>
+    <div class="cards">
+        <div class="card">
+            <h3>BMI</h3>
+            <p>{{ result.bmi }}</p>
+        </div>
 
-<a href="/download" class="btn">Download Report</a>
+        <div class="card">
+            <h3>Calories</h3>
+            <p>{{ result.calories }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Goal</h3>
+            <p>{{ result.goal }}</p>
+        </div>
+    </div>
+
+    
+    <h3>Category: {{ result.category }}</h3>
+
+    
+    <h3>Workout Plan</h3>
+    <ul>
+        {% for day, plan in result.weekly_plan.items() %}
+            <li><b>{{ day }}</b>: {{ plan }}</li>
+        {% endfor %}
+    </ul>
+
+
+    <h3>Tips</h3>
+    <ul>
+        {% for tip in result.tips %}
+            <li>{{ tip }}</li>
+        {% endfor %}
+    </ul>
+
+    
+    <a href="/download" class="btn">Download PDF</a>
+
+    <a href="/" class="btn">Back to Dashboard</a>
+
 </div>
 
 </body>
