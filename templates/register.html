@@ -1,13 +1,28 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>FitOps AI - Register</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
 <body>
 
-<div class="glass">
-<form method="POST">
-<input name="username" placeholder="Username" required>
-<input name="password" type="password" placeholder="Password" required>
-<button>Register</button>
-</form>
+<div class="auth-container">
+    <div class="form-box glass">
+        <img src="/static/logo.png" class="logo">
+
+        <h2>Create Account</h2>
+        <p class="tag">Start your AI-powered fitness journey</p>
+
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button>Register</button>
+        </form>
+
+        <p class="tag">
+            Already have an account? <a href="/login">Login</a>
+        </p>
+    </div>
 </div>
 
 </body>
