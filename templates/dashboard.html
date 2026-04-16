@@ -1,37 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>FitOps Dashboard</title>
-<link rel="stylesheet" href="/static/style.css">
+    <title>FitOps AI Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="glass">
-<img src="/static/logo.png" class="logo">
 
-<h1>FitOps</h1>
-<p class="tag">Build your Body like you Build your Code</p>
+    <img src="/static/logo.png" class="logo">
+    <h2>FitOps AI Dashboard</h2>
 
-<form action="/generate" method="POST" class="grid">
-<input name="age" placeholder="Age" required>
-<input name="height" placeholder="Height" required>
-<input name="weight" placeholder="Weight" required>
+    <!-- FORM -->
+    <form action="/generate" method="POST" class="grid">
+        <input type="number" name="age" placeholder="Age" required>
+        <input type="number" name="height" placeholder="Height (cm)" required>
+        <input type="number" name="weight" placeholder="Weight (kg)" required>
 
-<select name="gender">
-<option value="male">Male</option>
-<option value="female">Female</option>
-</select>
+        <select name="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
 
-<select name="diet_type">
-<option value="veg">Veg</option>
-<option value="nonveg">Non Veg</option>
-<option value="vegan">Vegan</option>
-</select>
+        <select name="diet_type">
+            <option value="normal">Normal</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+        </select>
 
-<button>Generate Plan</button>
-</form>
+        <button>Generate Plan</button>
+    </form>
+
+    <!-- CHART -->
+    <h3 style="margin-top:20px;">Progress</h3>
+    <canvas id="chart"></canvas>
+
+    <!-- CHATBOT -->
+    <h3>FitOps AI Coach</h3>
+    <div class="chat-box">
+        <input id="msg" placeholder="Ask anything...">
+        <button onclick="send()">Send</button>
+        <div id="chat"></div>
+    </div>
 
 </div>
+
+<script>
+fetch('/progress-data')
+.then(res => res.json())
+.then(data => {
+    new Chart(document.getElementById('chart'), {
+        type: 'line',
+        data: {
+            labels: data.dates,
+            datasets: [{
+                label: 'Weight Progress',
+                data: data.weights
+            }]
+        }
+    });
+});
+
+function send(){
+    let msg = document.getElementById("msg").value;
+
+    fetch('/chat', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({message: msg})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        document.getElementById("chat").innerHTML += 
+            "<p><b>You:</b> "+msg+"</p>" +
+            "<p><b>AI:</b> "+data.reply+"</p>";
+    });
+}
+</script>
 
 </body>
 </html>
