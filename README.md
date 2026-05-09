@@ -47,7 +47,7 @@ sudo apt update && sudo apt install terraform
 
 # Windows
 choco install terraform
-
+```
 
 
 
