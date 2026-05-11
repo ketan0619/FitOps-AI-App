@@ -1,9 +1,6 @@
 # FitOps-AI-App
 Architected and deployed a 3-tier FitOps AI application on AWS EKS using a fully automated GitOps pipeline.
 
-![Python](shields.io)
-![Flask](shields.io)
-![Docker](shields.io)
-![AWS](shields.io)
+![Python](shields.io)    ![Docker](shields.io)
 
 
