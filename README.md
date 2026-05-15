@@ -1,5 +1,8 @@
-# FitOps-AI-App
-Architected and deployed a 3-tier FitOps AI application on AWS EKS using a fully automated GitOps pipeline.
+<h1 align="center">Project Name</h1>
+
+<p align="center">
+  Short professional tagline
+</p>
 
 ---
 <p align="center">
