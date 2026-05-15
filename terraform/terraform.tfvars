@@ -1,0 +1,6 @@
+aws_region         = "eu-north-1"
+cluster_name       = "fitops-eks"
+cluster_version    = "1.35"
+node_instance_type = "t3.medium"
+node_desired_count = 3
+node_max_count     = 5

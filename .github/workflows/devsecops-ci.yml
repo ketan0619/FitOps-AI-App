@@ -1,7 +1,17 @@
 name: DevSecOps End-to-End Pipeline
 
 on:
-   workflow_call: 
+  workflow_call:
+    #push:
+    #branches: main
+    #paths:
+    # - 'app.py'
+    # - 'fitops.py'
+    # - 'models.py'
+    # - 'templates/*'
+    # - 'static/*'
+    # - 'manifests/*'
+    #workflow_dispatch:
 
 jobs:
 
@@ -34,17 +44,8 @@ jobs:
        docker-scan:
             uses: ./.github/workflows/docker-lint.yml
 
-       build:
+
+       CI:
             needs: [code-quality, secrets-scan, dependency-scan, docker-scan]
-            uses: ./.github/workflows/docker-build-and-push.yml
-            secrets: inherit
-
-       trivy:
-            needs: [build]
-            uses: ./.github/workflows/image-scan.yml
-            secrets: inherit
-
-       deploy:
-            needs: [trivy]
-            uses: ./.github/workflows/deploy.yml
+            uses: ./.github/workflows/ci-job.yml
             secrets: inherit
