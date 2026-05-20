@@ -140,9 +140,12 @@ def register():
 @login_required 
 def chat(): 
     msg = request.json.get("message") 
+    
+    ollama_base = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    
     try: 
         response = requests.post( 
-            "http://localhost:11434/api/generate", 
+            f"{ollama_base}/api/generate", 
             json={ 
                 "model": "llama3", 
                 "prompt": f"You are a fitness expert coach. Answer:\n{msg}", 
@@ -152,7 +155,7 @@ def chat():
         reply = response.json().get( "response", "No response" ) 
     except Exception as e: 
         reply = f"Error: {str(e)}" 
-    return jsonify({"reply": reply}) 
+    return jsonify({"reply": reply})
 
 # ---------- PROGRESS ---------- 
 @app.route('/progress-data') 
