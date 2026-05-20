@@ -1,0 +1,7 @@
+# .gitignore profile configurations
+.terraform/
+*.tfstate
+*.tfstate.backup
+tfplan
+.secret_backup/
+manifests/platform/gateway.yml

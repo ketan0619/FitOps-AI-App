@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-infrastructure
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/ketan0619/FitOps-AI-App.git'
+    targetRevision: HEAD
+    path: manifests/platform
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

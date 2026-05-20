@@ -18,4 +18,5 @@ jobs:
                      run: pip install pip-audit
                   
                    - name: Audit Dependencies
-                     run: pip-audit -r requirements.txt --ignore-vuln CVE-2026-4539
+                     run: pip-audit -r requirements.txt requirements-DevSecOps.txt --ignore-vuln CVE-2026-4539
+
