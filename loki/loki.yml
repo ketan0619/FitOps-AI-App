@@ -1,0 +1,24 @@
+loki:
+  auth_enabled: false
+  deploymentMode: SingleBinary
+  
+  backend:
+    replicas: 1
+  read:
+    replicas: 1
+  write:
+    replicas: 1
+
+  monitoring:
+    dashboards:
+      enabled: true
+
+promtail:
+  enabled: true
+  config:
+    logLevel: info
+    server:
+      http_listen_port: 3101
+    clients:
+      # Directs Promtail to pass log lines to the backend write endpoint
+      - url: http://{{ include "loki.writeAddress" . }}/loki/api/v1/push

@@ -1,6 +1,13 @@
 terraform {
   required_version = ">= 1.5.7"
 
+  backend "s3" {
+    bucket         = "fitops-remote-s3-bucket1"
+    key            = "eks/terraform.tfstate"
+    region         = "eu-north-1"
+    dynamodb_table = "fitops-remote-table"
+    encrypt        = true
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"

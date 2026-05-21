@@ -183,5 +183,5 @@ spec:
     consistentHash:
       type: Cookie
       cookie:
-        name: FITOPS_AFFINITY
+        name: FITOPS_ZONE
         ttl: 3600s

@@ -45,7 +45,7 @@ log "Credentials successfully written to local file: .secret_backup/argocd-creds
 
 
 log "Deploying Application-of-Applications Root Manifest..."
-kubectl apply -f k8s/argocd/root-application.yaml
+kubectl apply -f manifests/argocd/root-app.yaml
 
 
 log "Waiting for Envoy Gateway controller to spin up the AWS LoadBalancer..."

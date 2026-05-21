@@ -5,3 +5,4 @@
 tfplan
 .secret_backup/
 manifests/platform/gateway.yml
+.secret_backup/

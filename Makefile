@@ -1,15 +1,19 @@
 .PHONY: all init plan apply bootstrap deploy update-kubeconfig clean destroy
 
 # Configuration variables
-CLUSTER_NAME ?= bankapp-eks
+CLUSTER_NAME ?= fitops-ai-eks
 REGION       ?= eu-north-1
-ENV          ?= dev
+ENV          ?= prod
 
 all: bootstrap
 
 init:
 	@echo "==> Initializing Terraform Infrastructure..."
 	cd terraform && terraform init
+
+migrate:
+	@echo "==> Migrating local state file to S3 remote backend..."
+	cd terraform && terraform init -input=false -force-copy
 
 plan: init
 	@echo "==> Planning Infrastructure Changes..."
@@ -35,3 +39,28 @@ clean:
 destroy:
 	@echo "==> CRITICAL: Destroying environment resources..."
 	cd terraform && terraform destroy -auto-approve
+
+monitoring: credentials-info
+	@echo "==> Starting Grafana local proxy on http://localhost:3000..."
+	@echo "==> Keep this terminal open to maintain connection. Press Ctrl+C to stop."
+	kubectl port-forward -n monitoring deployment/kube-prometheus-stack-grafana 3000:3000
+
+# Grafana Port Forwarding for local access
+dashboard-app:
+	@echo "==> Starting Banking Application proxy on http://localhost:8080..."
+	kubectl port-forward -n fitops deployment/fitops 8080:8080
+
+# Internal helper to pull and format monitoring credentials
+credentials-info:
+	@echo "==> Fetching Grafana Administrative Credentials..."
+	@GRAFANA_PWD=$$(kubectl get secret kube-prometheus-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode); \
+	mkdir -p .secret_backup; \
+	echo "URL: http://localhost:3000" > .secret_backup/grafana-creds.txt; \
+	echo "Username: admin" >> .secret_backup/grafana-creds.txt; \
+	echo "Password: $$GRAFANA_PWD" >> .secret_backup/grafana-creds.txt; \
+	echo "----------------------------------------------------"; \
+	echo " Grafana URL      : http://localhost:3000"; \
+	echo " Admin Username   : admin"; \
+	echo " Admin Password   : $$GRAFANA_PWD"; \
+	echo "----------------------------------------------------"; \
+	echo "Credentials written to: .secret_backup/grafana-creds.txt"
