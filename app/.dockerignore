@@ -21,3 +21,16 @@ Thumbs.db
 Dockerfile
 .dockerignore
 
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+tfplan
+
+*values.yaml
+*datasource.yaml
+infra/
+k8s/
+argocd/
+
+Makefile

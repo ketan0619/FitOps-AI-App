@@ -1,6 +1,7 @@
 #s3 bucket to handle state file:-
 resource "aws_s3_bucket" "my-remote-s3-bucket" {
   bucket = "fitops-remote-s3-bucket1"
+  region = "eu-north-1"
 
 
   tags = {
