@@ -29,19 +29,23 @@ jobs:
 
              - name: Install dependencies
                run: |
-                   pip install -r requirements.txt -r requirements-DevSecOps.txt
+                   pip install -r requirements-DevSecOps.txt
 
        code-quality:
+            needs: dependencies-installation
             uses: ./.github/workflows/code-quality.yml
 
        secrets-scan:
+            needs: dependencies-installation
             uses: ./.github/workflows/secrets-scan.yml
             secrets: inherit
 
        dependency-scan:
+            needs: dependencies-installation
             uses: ./.github/workflows/dependency-scan.yml
 
        docker-scan:
+            needs: dependencies-installation
             uses: ./.github/workflows/docker-lint.yml
 
 
