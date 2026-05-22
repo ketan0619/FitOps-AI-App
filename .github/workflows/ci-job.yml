@@ -43,11 +43,11 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Trivy Scanner
-                uses: aquasecurity/trivy-action@0.35.0
-                with:
-                    image-ref: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
-                    severity: 'CRITICAL,HIGH'
-                    exit-code: '1'
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+            image-ref: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
+            severity: 'CRITICAL,HIGH'
+            exit-code: '1'
 
       - name: Update Kubernetes deployment manifest
         run: |
