@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir --target=/install/lib/python3/dist-packages -r requirements.txt
 
-FROM gcr.io/distroless/python3-debian12:latest
+FROM gcr.io/distroless/python3-debian12:nonroot
 WORKDIR /app
 COPY --from=builder /install/lib/python3/dist-packages /usr/lib/python3/dist-packages
 COPY . .
