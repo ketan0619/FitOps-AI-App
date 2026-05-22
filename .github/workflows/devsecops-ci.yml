@@ -1,17 +1,17 @@
 name: DevSecOps End-to-End Pipeline
 
 on:
-  workflow_call:
-    #push:
-    #branches: main
-    #paths:
-    # - 'app.py'
-    # - 'fitops.py'
-    # - 'models.py'
-    # - 'templates/*'
-    # - 'static/*'
-    # - 'manifests/*'
-    #workflow_dispatch:
+    push:
+       branches: [main]
+       paths:
+          - 'app.py'
+          - 'fitops.py'
+          - 'models.py'
+          - 'templates/*'
+          - 'static/*'
+          - 'manifests/*'
+          - '.github/workflows/*'
+    workflow_dispatch:
 
 jobs:
 
