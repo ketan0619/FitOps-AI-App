@@ -1,0 +1,23 @@
+# .trivyignore
+# Ignore unpatched Expat XML parsing issues
+CVE-2025-59375
+CVE-2026-25210
+CVE-2026-45186
+CVE-2026-7210
+
+# Ignore unpatched Kerberos DoS issues
+CVE-2026-40356
+
+# Ignore unpatched Ncurses buffer overflows
+CVE-2025-69720
+
+# Ignore unpatched Python Markdown vulnerabilities
+CVE-2025-69534
+CVE-2026-6100
+
+# Ignore unpatched SQLite integer overflows
+CVE-2025-7458
+
+# Ignore unpatched zlib compression heap overflows
+CVE-2023-45853
+

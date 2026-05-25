@@ -1,7 +1,7 @@
 FROM python:3.11-slim-bookworm AS builder
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade && apt-get install -y --no-install-recommends \
     build-essential=12.9 \
     libffi-dev=3.4.4-1 \
     ssl-cert=1.1.2 \
