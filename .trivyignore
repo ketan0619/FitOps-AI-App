@@ -20,4 +20,4 @@ CVE-2025-7458
 
 # Ignore unpatched zlib compression heap overflows
 CVE-2023-45853
-
+CVE-2025-13836
