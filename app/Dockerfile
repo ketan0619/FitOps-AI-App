@@ -1,11 +1,12 @@
 FROM python:3.11-slim-bookworm AS builder
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade && apt-get install -y --no-install-recommends \
-    build-essential=* \
-    libffi-dev=* \
-    ssl-cert=* \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libffi-dev \
+    ssl-cert \
     && rm -rf /var/lib/apt/lists/*
+
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --target=/install/lib/python3/dist-packages -r requirements.txt
