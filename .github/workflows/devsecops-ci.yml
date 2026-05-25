@@ -1,4 +1,4 @@
-name: DevSecOps End-to-End Pipeline
+name: DevSecOps End-to-End Pipeline Deployment
 
 on:
     push:
