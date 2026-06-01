@@ -1,7 +1,7 @@
 .PHONY: all init plan apply bootstrap deploy update-kubeconfig clean destroy
 
 # Configuration variables
-CLUSTER_NAME ?= fitops-ai-eks
+CLUSTER_NAME ?= fitops-eks
 REGION       ?= eu-north-1
 ENV          ?= prod
 

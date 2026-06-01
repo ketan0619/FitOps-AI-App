@@ -9,6 +9,12 @@ spec:
     repoURL: 'https://prometheus-community.github.io/helm-charts'
     chart: kube-prometheus-stack
     targetRevision: 56.0.0
+    # Define Helm values directly in the Application manifest
+    helm:
+      values: |
+        grafana:
+          service:
+            type: LoadBalancer
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
@@ -18,3 +24,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true  # Required for large Prometheus CRDs
+
