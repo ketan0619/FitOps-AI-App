@@ -5,7 +5,7 @@ on:
        branches: [main]
        paths:
           - '.'
-          - 'manifests/*'
+          - 'manifests/*/*'
           - '.github/workflows/*'
     workflow_dispatch:
 
