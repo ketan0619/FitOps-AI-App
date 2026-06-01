@@ -59,7 +59,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout ${{ github.ref_name }} || git checkout main
-          git add manifests/*
+          git add manifests/**
           if ! git diff --staged --quiet; then
             git commit -m "ci: update fitops-ai-app image to ${{ steps.tag.outputs.sha_short }} [skip ci]"
             git push origin HEAD:${{ github.ref_name }}
