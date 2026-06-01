@@ -4,9 +4,9 @@ on:
     push:
        branches: [main]
        paths:
-          - '.'
-          - 'manifests/*/*'
-          - '.github/workflows/*'
+          - '**'
+          - 'manifests/**'
+          - '.github/workflows/**'
     workflow_dispatch:
 
 permissions:
