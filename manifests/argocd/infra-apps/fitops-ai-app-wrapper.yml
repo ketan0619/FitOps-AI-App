@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/ketan0619/FitOps-AI-App.git'
     targetRevision: HEAD
-    path: manifests/app
+    path: manifests/
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: fitops
