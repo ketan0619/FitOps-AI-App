@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Inputs with default fallbacks matching your architecture config
-CLUSTER_NAME=${1:-"bankapp-eks"}
+CLUSTER_NAME=${1:-"fitops-eks"}
 REGION=${2:-"eu-north-1"}
 
 log() {
@@ -76,7 +76,7 @@ fi
 log "Successfully resolved Public IP: $PUBLIC_IP"
 
 log "Generating final gateway.yml configuration file from template pattern..."
-sed "s/__PUBLIC_IP__/${PUBLIC_IP}/g" k8s/platform/gateway.template.yml > k8s/platform/gateway.yml
+sed "s/__PUBLIC_IP__/${PUBLIC_IP}/g" manifests/platform/gateway.template.yml > manifests/platform/gateway.yml
 
 log "Gateway configuration successfully updated automated for ${PUBLIC_IP}.nip.io"
 log "Automation Bootstrap Sequence Complete! Monitor synchronization progress via your ArgoCD dashboard."
