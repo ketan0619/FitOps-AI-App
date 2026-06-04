@@ -1,14 +1,14 @@
 name: DevSecOps End-to-End Pipeline
 
 on:
-  workflow_call:
-  #push:
-  #    branches: [main]
-  #    paths:
-  #       - '**'
-  #       - 'manifests/**'
-  #       - '.github/workflows/**'
-  # workflow_dispatch:
+  #workflow_call:
+  push:
+      branches: [main]
+      paths:
+         - '**'
+         - 'manifests/**'
+         - '.github/workflows/**'
+  workflow_dispatch:
 
 permissions:
     contents: write
