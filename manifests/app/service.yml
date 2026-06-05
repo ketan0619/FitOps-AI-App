@@ -26,7 +26,7 @@ metadata:
   name: fitops-service
   namespace: fitops
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   sessionAffinity: ClientIP
   sessionAffinityConfig:
     clientIP:

@@ -15,6 +15,11 @@ spec:
         grafana:
           service:
             type: LoadBalancer
+            nodePort: 30500
+            annotations:
+              service.beta.kubernetes.io/aws-load-balancer-type: "external"
+              service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
+              service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
