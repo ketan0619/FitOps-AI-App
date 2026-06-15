@@ -1,23 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-set -euo pipefail
+log "creating the remote backend"
+make backends
 
-# Inputs with default fallbacks matching your architecture config
+log "Creating the EKS Cluster"
+make init
+make migrate
+make apply
+
+
 CLUSTER_NAME=${1:-"fitops-eks"}
 REGION=${2:-"eu-north-1"}
-
-log() {
-    echo -e "\033[1;34m[BOOTSTRAP]\033[0m $1"
-}
-
-log "Validating that required CLI dependencies exist locally..."
-for cmd in aws kubectl helm terraform nslookup; do
-    if ! command -v "$cmd" &> /dev/null; then
-        echo "Error: Required binary dependency '$cmd' is not found in PATH." >&2
-        exit 1
-    fi
-done
-
 
 log "Syncing local environment context configuration for EKS..."
 aws eks update-kubeconfig --region "${REGION}" --name "${CLUSTER_NAME}"
@@ -30,18 +23,7 @@ kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/downloa
 log "Waiting for ArgoCD Server deployment to stabilize..."
 kubectl wait --namespace argocd \
   --for=condition=available deployment/argocd-server \
-  --timeout=300s
-
-log "Extracting initial Administrative Credentials..."
-ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode)
-
-
-mkdir -p .secret_backup
-echo "URL: Managed via App Gateway / Port-Forward" > .secret_backup/argocd-creds.txt
-echo "Username: admin" >> .secret_backup/argocd-creds.txt
-echo "Password: ${ARGOCD_PASSWORD}" >> .secret_backup/argocd-creds.txt
-chmod 600 .secret_backup/argocd-creds.txt
-log "Credentials successfully written to local file: .secret_backup/argocd-creds.txt"
+  --timeout=120s
 
 
 log "Deploying Application-of-Applications Root Manifest..."
@@ -51,14 +33,28 @@ kubectl apply -f manifests/argocd/root-app.yml
 log "Waiting for Envoy Gateway controller to spin up the AWS LoadBalancer..."
 log "Note: This can take 1-3 minutes as AWS allocates the physical Network Load Balancer (NLB)."
 
+TIMEOUT_SECONDS=300
+SLEEP_INTERVAL=15
+ELAPSED_TIME=0
+
 while true; do
     LB_DNS=$(kubectl get gateway fitops-gateway -n fitops -o jsonpath='{.status.addresses[0].value}' 2>/dev/null || echo "")
+    
+    # Success condition: DNS endpoint is found
     if [ -n "$LB_DNS" ]; then
         log "Found AWS LoadBalancer DNS Endpoint: $LB_DNS"
         break
     fi
-    echo "Waiting for LoadBalancer address mapping to appear..."
-    sleep 15
+    
+    # Failure condition: Timeout reached
+    if [ "$ELAPSED_TIME" -ge "$TIMEOUT_SECONDS" ]; then
+        echo "CRITICAL: Timed out waiting for AWS LoadBalancer DNS after ${TIMEOUT_SECONDS} seconds." >&2
+        exit 1
+    fi
+    
+    echo "Waiting for LoadBalancer address mapping to appear... (${ELAPSED_TIME}/${TIMEOUT_SECONDS}s elapsed)"
+    sleep "$SLEEP_INTERVAL"
+    ELAPSED_TIME=$((ELAPSED_TIME + SLEEP_INTERVAL))
 done
 
 log "Resolving Public IP for LoadBalancer via nslookup..."
@@ -75,8 +71,22 @@ fi
 
 log "Successfully resolved Public IP: $PUBLIC_IP"
 
+
 log "Generating final gateway.yml configuration file from template pattern..."
 sed "s/__PUBLIC_IP__/${PUBLIC_IP}/g" manifests/platform/gateway.template.yml > manifests/platform/gateway.yml
+
+log "Extracting initial ArgoCD Administrative Credentials..."
+ARGOCD_URL=$(kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+echo "ARGOCD_USER=admin"
+ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode)
+
+log "Getting the Grafana URL"
+kubectl get svc kube-prometheus-grafana -n monitoring -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+log "Getting the Grafana Credentials"
+echo "Grafana_User: admin"
+Grafana_Password=$(kubectl get secret kube-prometheus-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo)
+
 
 log "Gateway configuration successfully updated automated for ${PUBLIC_IP}.nip.io"
 log "Automation Bootstrap Sequence Complete! Monitor synchronization progress via your ArgoCD dashboard."

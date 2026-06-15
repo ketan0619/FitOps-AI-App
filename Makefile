@@ -7,6 +7,10 @@ ENV          ?= prod
 
 all: bootstrap
 
+backends:
+	@echo "==> Initializing and Provisioning Remote Backend..."
+	cd terraform/remote-backends && terraform init && terraform apply -auto-approve
+
 init:
 	@echo "==> Initializing Terraform Infrastructure..."
 	cd terraform && terraform init
@@ -27,7 +31,7 @@ update-kubeconfig:
 	@echo "==> Updating Kubeconfig context for cluster: $(CLUSTER_NAME)..."
 	aws eks update-kubeconfig --region $(REGION) --name $(CLUSTER_NAME)
 
-bootstrap: apply update-kubeconfig
+bootstrap:
 	@echo "==> Executing Bootstrap Phase & Component Sync..."
 	@bash scripts/bootstrap.sh $(CLUSTER_NAME) $(REGION)
 
@@ -39,6 +43,10 @@ clean:
 destroy:
 	@echo "==> CRITICAL: Destroying environment resources..."
 	cd terraform && terraform destroy -auto-approve
+
+destroy-backends:
+	@echo "==> CRITICAL: Destroying the Remote Backends..."
+	cd terraform/remote-backends && terraform destroy -auto-approve
 
 monitoring: credentials-info
 	@echo "==> Starting Grafana local proxy on http://localhost:3000..."

@@ -13,6 +13,8 @@ spec:
       parameters:
         - name: installCRDs
           value: 'true'
+        - name: config.enableGatewayAPI
+          value: 'true'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: cert-manager

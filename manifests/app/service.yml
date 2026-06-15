@@ -27,12 +27,13 @@ metadata:
   namespace: fitops
 spec:
   type: LoadBalancer
-  sessionAffinity: ClientIP
-  sessionAffinityConfig:
-    clientIP:
-      timeoutSeconds: 3600
+  sessionAffinity: None
+    #sessionAffinityConfig:
+    #clientIP:
+    # timeoutSeconds: 3600
   selector:
     app: fitops
   ports:
     - port: 8080
       targetPort: 8080
+        # nodePort: 30591

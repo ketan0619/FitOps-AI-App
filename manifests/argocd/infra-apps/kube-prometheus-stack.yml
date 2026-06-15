@@ -15,7 +15,6 @@ spec:
         grafana:
           service:
             type: LoadBalancer
-            nodePort: 30500
             annotations:
               service.beta.kubernetes.io/aws-load-balancer-type: "external"
               service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
@@ -29,5 +28,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true  # Required for large Prometheus CRDs
-
+      - ServerSideApply=true
