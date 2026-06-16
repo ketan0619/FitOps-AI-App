@@ -19,6 +19,7 @@ spec:
               service.beta.kubernetes.io/aws-load-balancer-type: "external"
               service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
