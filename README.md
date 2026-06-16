@@ -1,7 +1,7 @@
 <h1 align="center">FitOps-AI-App</h1>
 
 <p align="center">
-  Architected and deployed a 3-tier FitOps AI application on AWS EKS using a fully automated GitOps pipeline.
+  Architected and deployed a 3-tier FitOps AI application on AWS EKS using a fully automated GitOps pipeline with integrated DevSecOps workflows. Provisioned the entire infrastructure using Terraform and configured comprehensive observability. Utilized ArgoCD to maintain GitHub as the Single Source of Truth (SSOT).
 </p>
 
 ---
