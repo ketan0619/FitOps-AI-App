@@ -15,6 +15,8 @@ spec:
         grafana:
           service:
             type: LoadBalancer
+            port: 3000
+            targetPort: 3000
             annotations:
               service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
