@@ -9,18 +9,18 @@ spec:
     repoURL: 'https://prometheus-community.github.io/helm-charts'
     chart: kube-prometheus-stack
     targetRevision: 56.0.0
-    # Define Helm values directly in the Application manifest
     helm:
       values: |
         grafana:
           service:
+            enabled: true
             type: LoadBalancer
             port: 3000
             targetPort: 3000
             annotations:
+              service.beta.kubernetes.io/aws-load-balancer-type: "external"
               service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
-              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
