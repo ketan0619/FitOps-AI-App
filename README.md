@@ -5,29 +5,32 @@
 </p>
 
 ---
-<p align="center">
+[![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python)](https://www.python.org/)
 
-  <img src="https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python">
-  <img src="https://img.shields.io/badge/Flask-3.1.3-000000?style=for-the-badge&logo=flask">
-  <img src="https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql">
-  <img src="https://img.shields.io/badge/Ollama-Local_LLM-000000?style=for-the-badge&logo=ollama">
+[![Flask](https://img.shields.io/badge/Flask-3.1.3-000000?logo=flask)](https://flask.palletsprojects.com/)
 
-</p>
+[![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql)](https://www.mysql.com/)
 
-<p align="center">
+[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-000000?logo=ollama)](https://ollama.com/)
 
-  <img src="https://img.shields.io/badge/Terraform-IaC-844FBA?style=for-the-badge&logo=terraform">
-  <img src="https://img.shields.io/badge/GitHub_Actions-CI/CD-2088FF?style=for-the-badge&logo=githubactions">
-  <img src="https://img.shields.io/badge/Docker-Containers-2496ED?style=for-the-badge&logo=docker">
-  <img src="https://img.shields.io/badge/Amazon_EKS-1.35-FF9900?style=for-the-badge&logo=amazoneks">
+[![Terraform](https://img.shields.io/badge/Terraform-IaC-844FBA?logo=terraform)](https://www.terraform.io/)
 
-</p>
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions)](https://github.com/features/actions)
 
-<p align="center">
+[![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?logo=docker)](https://www.docker.com/)
 
-  <img src="https://img.shields.io/badge/Helm-3.19-0F1689?style=for-the-badge&logo=helm">
-  <img src="https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D?style=for-the-badge&logo=argo">
-  <img src="https://img.shields.io/badge/Kubernetes-Orchestration-326CE5?style=for-the-badge&logo=kubernetes">
-  <img src="https://img.shields.io/badge/AWS-Cloud-232F3E?style=for-the-badge&logo=amazonaws">
+[![Amazon EKS](https://img.shields.io/badge/Amazon%20EKS-1.35-FF9900?logo=amazoneks)](https://aws.amazon.com/eks/)
 
-</p>
+[![Helm](https://img.shields.io/badge/Helm-3.19-0F1689?logo=helm)](https://helm.sh/)
+
+[![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D?logo=argo)](https://argo-cd.readthedocs.io/)
+
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5?logo=kubernetes)](https://kubernetes.io/)
+
+[![AWS](https://img.shields.io/badge/AWS-Cloud-232F3E?logo=amazonaws)](https://aws.amazon.com/)
+
+[![Prometheus](https://img.shields.io/badge/Prometheus-Monitoring-E6522C?logo=prometheus)](https://prometheus.io/)
+
+[![Grafana](https://img.shields.io/badge/Grafana-Dashboards-F46800?logo=grafana)](https://grafana.com/)
+
+[![Trivy](https://img.shields.io/badge/Trivy-Security%20Scan-1904DA?logo=aquasecurity)](https://trivy.dev/)
