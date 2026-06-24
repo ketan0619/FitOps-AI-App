@@ -5,6 +5,12 @@
 </p>
 
 ---
+<h3 align="center">⚙️ Tech Stack & DevOps Toolchain</h3>
+
+<p align="center">
+  <!-- badges here -->
+</p>
+
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python)](https://www.python.org/)
