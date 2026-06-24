@@ -41,7 +41,16 @@
 - **AI Chatbot** - Your Personal Fitness Assistant- Ollama Chatbot.
 - **Dashboard** - A very appealing and Gym Themed Dashboard and Glassmorphism UI for Fitness Enthusiasts.
 
-## Architecture:-
+## Architecture Features:-
+
+- **Infrastructure** - Terraform Provisions whole Infra (EKS, ArgoCD, VPC) and statefile saved in remote backends(S3+DynamoDB).
+- **EKS Cluster** - K8s v1.35 and Instances(t3.medium) all in different AZs.
+- **Autoscaling** - Configured HPA which will scales upto 4 pods, 2 replicas and Rolling Updates.
+- **App-of-Apps Setup** - Deploy and Manage the child apps by executing a single Root Application Configuration File. No need to execute all the manifests, just one single root-app.yml
+- **Automation** - Automation Scripts like Makefile and Bootstrap.sh will automate the deployment of the App along with whole Infrastructure.
+
+
+## Architecture Diagram:-
 
 
 ## Tools:-
