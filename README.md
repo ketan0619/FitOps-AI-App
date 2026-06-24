@@ -30,3 +30,13 @@
 [![Trivy](https://img.shields.io/badge/Trivy-Security%20Scan-1904DA?logo=aquasecurity)](https://trivy.dev/)
 
 </div>
+
+---
+
+## Application Features:-
+
+- **BMI Calculator** - First of all BMI is calculated as per the Age, Height, Weight and Gender.
+- **Fitness Plan** - App Recommends a Proper Workout Plan for specific BMI along with an A-Grade Diet.
+- **Reports & Charts** - App includes the Height, Weight Ratio Chart as well as downloadable PDF Reports of BMI and Fitness plans.
+- **AI Chatbot** - Your Personal Fitness Assistant- Ollama Chatbot.
+- **Dashboard** - A very appealing and Gym Themed Dashboard and Glassmorphism UI for Fitness Enthusiasts.
