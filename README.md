@@ -40,3 +40,21 @@
 - **Reports & Charts** - App includes the Height, Weight Ratio Chart as well as downloadable PDF Reports of BMI and Fitness plans.
 - **AI Chatbot** - Your Personal Fitness Assistant- Ollama Chatbot.
 - **Dashboard** - A very appealing and Gym Themed Dashboard and Glassmorphism UI for Fitness Enthusiasts.
+
+## Architecture:-
+
+
+## Tools:-
+
+| Tool | Purpose |
+|------|---------|
+| **Terraform** | IaC |
+| **Github Actions** | CI Job |
+| **DockerHub** | Image Registry |
+| **ArgoCD** | CD Job/GitOps |
+| **Cert-Manager** | TLS |
+| **Gateway API CRDs+ Envoy Gateway** | Ingress |
+| **Ollama Hosted on EKS** | AI Chatbot |
+| **Kube-Prometheus-Stack** | Monitoring and Visualizing Grafana Dashboards |
+| **EBS CSI** | Storage/PV |
+| **MySql** | Database |
