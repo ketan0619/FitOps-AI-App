@@ -57,4 +57,4 @@
 | **Ollama Hosted on EKS** | AI Chatbot |
 | **Kube-Prometheus-Stack** | Monitoring and Visualizing Grafana Dashboards |
 | **EBS CSI** | Storage/Persistant Volume |
-| **MySql** | Database |
+| **MySQL** | Relational Database |
