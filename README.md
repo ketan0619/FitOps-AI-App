@@ -48,13 +48,13 @@
 
 | Tool | Purpose |
 |------|---------|
-| **Terraform** | IaC |
-| **Github Actions** | CI Job |
+| **Terraform(IaC)** | Infrastructure Provisioning |
+| **Github Actions** | Continuous Integration |
 | **DockerHub** | Image Registry |
 | **ArgoCD** | CD Job/GitOps |
 | **Cert-Manager** | TLS |
 | **Gateway API CRDs+ Envoy Gateway** | Ingress |
 | **Ollama Hosted on EKS** | AI Chatbot |
 | **Kube-Prometheus-Stack** | Monitoring and Visualizing Grafana Dashboards |
-| **EBS CSI** | Storage/PV |
+| **EBS CSI** | Storage/Persistant Volume |
 | **MySql** | Database |
