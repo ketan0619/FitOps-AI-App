@@ -64,6 +64,6 @@
 | **Cert-Manager** | TLS |
 | **Gateway API CRDs+ Envoy Gateway** | Ingress |
 | **Ollama Hosted on EKS** | AI Chatbot |
-| **Kube-Prometheus-Stack** | Monitoring and Visualizing Grafana Dashboards |
+| **Kube-Prometheus-Stack** | Monitoring and Visualizing on Grafana Dashboards |
 | **EBS CSI** | Storage/Persistant Volume |
 | **MySQL** | Relational Database |
