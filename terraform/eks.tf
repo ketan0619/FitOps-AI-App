@@ -50,7 +50,7 @@ module "eks" {
       min_size       = var.node_desired_count
       max_size       = var.node_max_count
 
-      tags = {
+     tags = {
         NodeGroup = "fitops"
       }
     }
