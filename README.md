@@ -48,6 +48,7 @@
 - **Autoscaling** - Configured HPA which will scales upto 4 pods, 2 replicas and Rolling Updates.
 - **App-of-Apps Setup** - Deploy and Manage the child apps by executing a single Root Application Configuration File. No need to execute all the manifests, just one single root-app.yml
 - **Automation** - Automation Scripts like Makefile and Bootstrap.sh will automate the deployment of the App along with whole Infrastructure.
+- **GitOps with ArgoCD** - Auto Sync and Self-Heal.
 
 
 ## Architecture Diagram:-
