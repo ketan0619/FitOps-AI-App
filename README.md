@@ -50,9 +50,13 @@
 - **Automation** - Automation Scripts like Makefile and Bootstrap.sh will automate the deployment of the App along with whole Infrastructure.
 - **GitOps with ArgoCD** - Auto Sync and Self-Heal.
 
+---
 
 ## Architecture Diagram:-
 
+<img width="1408" height="768" alt="FitOps-Workflow" src="https://github.com/user-attachments/assets/4c026815-d769-4936-9fcb-151fc958ede0" />
+
+---
 
 ## Tools:-
 
