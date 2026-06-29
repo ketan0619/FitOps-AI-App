@@ -5,7 +5,6 @@ from fitops import calculate_bmi, fitness_plan, ideal_weight, calories_needed
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from io import BytesIO
-import boto3
 import json
 import os
 import time
@@ -32,28 +31,34 @@ _db_uri = None
 
 
 def get_db_uri():
+    """
+    Resolve the DB connection string purely from environment variables.
+    No AWS / Secrets Manager calls here — this app's DB is not on AWS,
+    and the credentials are already injected as env vars via
+    GitHub Actions / Kubernetes secrets.
+    """
     global _db_uri
     if _db_uri:
         return _db_uri
-    try:
-        client_boto = boto3.client(
-            "secretsmanager", region_name="eu-north-1"
-        )
-        secret = json.loads(
-            client_boto.get_secret_value(
-                SecretId="fitops-db-secret"
-            )["SecretString"]
-        )
-        _db_uri = (
-            f"mysql+pymysql://{secret['username']}:{secret['password']}@"
-            f"{secret['host']}:{secret['port']}/{secret['dbname']}"
-        )
+
+    # Preferred: a single fully-formed DATABASE_URL env var
+    full_url = os.getenv("DATABASE_URL")
+    if full_url:
+        _db_uri = full_url
         return _db_uri
-    except Exception:
-        return os.getenv(
-            "DATABASE_URL",
-            "mysql+pymysql://fitops:fitops123@mysql:3306/fitopsdb"
-        )
+
+    # Fallback: build it from individual pieces (useful if your
+    # GitHub Actions secrets are split into separate keys)
+    db_user = os.getenv("DB_USER", "fitops")
+    db_pass = os.getenv("DB_PASSWORD", "fitops123")
+    db_host = os.getenv("DB_HOST", "mysql")
+    db_port = os.getenv("DB_PORT", "3306")
+    db_name = os.getenv("DB_NAME", "fitopsdb")
+
+    _db_uri = (
+        f"mysql+pymysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
+    )
+    return _db_uri
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
