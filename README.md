@@ -52,7 +52,7 @@
 
 
 
-## <h3 align="left">⚙️ Tech Stack & DevOps Toolchain</h3>
+<h3 align="left">⚙️ Tech Stack & DevOps Toolchain</h3>
 
 | Tool | Purpose |
 |------|---------|
