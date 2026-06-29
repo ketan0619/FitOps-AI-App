@@ -33,7 +33,7 @@
 
 ---
 
-## Application Features:-
+## Application Features
 
 - **BMI Calculator** - First of all BMI is calculated as per the Age, Height, Weight and Gender.
 - **Fitness Plan** - App Recommends a Proper Workout Plan for specific BMI along with an A-Grade Diet.
@@ -41,7 +41,7 @@
 - **AI Chatbot** - Your Personal Fitness Assistant- Ollama Chatbot.
 - **Dashboard** - A very appealing and Gym Themed Dashboard and Glassmorphism UI for Fitness Enthusiasts.
 
-## Architecture Features:-
+## Architecture Features
 
 - **Infrastructure** - Terraform Provisions whole Infra (EKS, ArgoCD, VPC) and statefile saved in remote backends(S3+DynamoDB).
 - **EKS Cluster** - K8s v1.35 and Instances(t3.medium) all in different AZs.
@@ -52,12 +52,12 @@
 
 ---
 
-## Architecture Diagram:-
+## Architecture Diagram
 
 <img width="1408" height="768" alt="FitOps-Workflow" src="https://github.com/user-attachments/assets/4c026815-d769-4936-9fcb-151fc958ede0" />
 
 
-## Tools:-
+## Tools
 
 | Tool | Purpose |
 |------|---------|
