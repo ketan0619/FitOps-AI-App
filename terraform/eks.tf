@@ -59,6 +59,7 @@ module "eks" {
   tags = local.tags
 }
 
+
 # IRSA for EBS CSI Driver (needed to create/attach EBS volumes)
 module "ebs_csi_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
