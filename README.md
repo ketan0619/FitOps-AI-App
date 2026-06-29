@@ -4,7 +4,6 @@
   Architected and deployed a 3-tier FitOps AI application on AWS EKS using a fully automated GitOps pipeline with integrated DevSecOps workflows. Provisioned the entire infrastructure using Terraform and configured comprehensive observability. Utilized ArgoCD to maintain GitHub as the Single Source of Truth (SSoT).
 </p>
 
----
 <h3 align="center">⚙️ Tech Stack & DevOps Toolchain</h3>
 
 <p align="center">
@@ -57,7 +56,7 @@
 <img width="1408" height="768" alt="FitOps-Workflow" src="https://github.com/user-attachments/assets/4c026815-d769-4936-9fcb-151fc958ede0" />
 
 
-## Tools
+<h3 align="center">⚙️ Tech Stack & DevOps Toolchain</h3>
 
 | Tool | Purpose |
 |------|---------|
