@@ -5,7 +5,6 @@
 </p>
 
 
-
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python)](https://www.python.org/)
@@ -52,7 +51,8 @@
 <img width="1408" height="768" alt="FitOps-Workflow" src="https://github.com/user-attachments/assets/4c026815-d769-4936-9fcb-151fc958ede0" />
 
 
-<h3 align="left">⚙️ Tech Stack & DevOps Toolchain</h3>
+
+## <h3 align="left">⚙️ Tech Stack & DevOps Toolchain</h3>
 
 | Tool | Purpose |
 |------|---------|
