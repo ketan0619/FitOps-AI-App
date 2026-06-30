@@ -43,6 +43,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
+          pull: true
           tags: |
             ${{ env.DOCKERHUB_REPO }}:latest
             ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
