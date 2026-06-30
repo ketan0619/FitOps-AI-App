@@ -1,4 +1,9 @@
 # .trivyignore
+
+# Excluded on June 30, 2026: No upstream fix available from Debian 13 yet.
+# App doesn't extract untrusted tar files; safe to ignore for Gunicorn/Ollama proxy.
+CVE-2026-11940
+
 # Ignore unpatched Expat XML parsing issues
 CVE-2025-59375
 CVE-2026-25210
