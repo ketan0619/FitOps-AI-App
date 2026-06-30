@@ -5,7 +5,6 @@ from fitops import calculate_bmi, fitness_plan, ideal_weight, calories_needed
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from io import BytesIO
-import json
 import os
 import time
 import requests
