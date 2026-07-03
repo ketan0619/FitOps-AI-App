@@ -30,7 +30,7 @@
 ## 🚀 Application Features
 
 - **🧠 Dynamic BMI Calculation** - Computes precise Body Mass Index utilizing age, height, weight, and gender metrics.
-- **📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI                                                results.
+- **📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI results.
 - **📊 Analytics & Exportable Reports** - Features interactive height-to-weight ratio charts and instant PDF downloads for fitness profiles.
 - **🤖 Local AI Fitness Assistant** - Integrates an intelligent, privacy-focused Ollama chatbot acting as a 24/7 personal trainer.
 - **🎨 Glassmorphism Gym Dashboard** - Boasts a visually striking UI crafted specifically for fitness enthusiasts.
@@ -56,13 +56,13 @@
 
 | Tool | Purpose |
 |------|---------|
-| **Terraform(IaC)** | Infrastructure Provisioning |
-| **Github Actions** | Continuous Integration |
-| **DockerHub** | Image Registry |
-| **ArgoCD** | CD Job/GitOps |
-| **Cert-Manager** | TLS |
-| **Gateway API CRDs+ Envoy Gateway** | Ingress |
-| **Ollama Hosted on EKS** | AI Chatbot |
-| **Kube-Prometheus-Stack** | Monitoring and Visualizing on Grafana Dashboards |
-| **EBS CSI** | Storage/Persistant Volume |
-| **MySQL** | Relational Database |
+| **Terraform(IaC)** | Declarative lifecycle management and provisioning of full-stack cloud infrastructure. |
+| **Github Actions** | Automated Continuous Integration pipeline handling build, test, and containerisation workflows. |
+| **DockerHub** | Secure, centralized container image registry for hosting and distributing application builds. |
+| **ArgoCD** | Declarative Continuous Delivery engine driving automated, drift-free GitOps reconciliation. |
+| **Cert-Manager** | Automated X.509 certificate provisioning and renewal for secure TLS communication. |
+| **Gateway API CRDs+ Envoy Gateway** | Next-generation cloud-native ingress controller managing advanced traffic routing and edge control. |
+| **Ollama Hosted on EKS** | Scalable, self-hosted containerized engine powering local LLM execution directly on Kubernetes. |
+| **Kube-Prometheus-Stack** | End-to-end monitoring solution delivering real-time metrics gathering and rich Grafana visualization. |
+| **EBS CSI Driver** | Dynamic provisioning of highly-available AWS block storage for persistent application workloads. |
+| **MySQL** | Managed relational database engine ensuring secure, transactional data persistence. |
