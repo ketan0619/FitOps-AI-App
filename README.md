@@ -29,11 +29,11 @@
 
 ## Application Features
 
-- **BMI Calculator** - First of all BMI is calculated as per the Age, Height, Weight and Gender.
-- **Fitness Plan** - App Recommends a Proper Workout Plan for specific BMI along with an A-Grade Diet.
-- **Reports & Charts** - App includes the Height, Weight Ratio Chart as well as downloadable PDF Reports of BMI and Fitness plans.
-- **AI Chatbot** - Your Personal Fitness Assistant- Ollama Chatbot.
-- **Dashboard** - A very appealing and Gym Themed Dashboard and Glassmorphism UI for Fitness Enthusiasts.
+- **🧠 Dynamic BMI Calculation** - Computes precise Body Mass Index utilizing age, height, weight, and gender metrics.
+- **📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI results.
+- **📊 Analytics & Exportable Reports** - Features interactive height-to-weight ratio charts and instant PDF downloads for fitness profiles.
+- **🤖 Local AI Fitness Assistant** - Integrates an intelligent, privacy-focused Ollama chatbot acting as a 24/7 personal trainer.
+- **🎨 Glassmorphism Gym Dashboard** - Boasts a visually striking UI crafted specifically for fitness enthusiasts.
 
 ## Architecture Features
 
