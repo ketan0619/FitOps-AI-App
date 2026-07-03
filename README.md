@@ -27,22 +27,22 @@
 
 ---
 
-## Application Features
+## 🚀 Application Features
 
-- **🧠 Dynamic BMI Calculation** - Computes precise Body Mass Index utilizing age, height, weight, and gender metrics.
-- **📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI results.
-- **📊 Analytics & Exportable Reports** - Features interactive height-to-weight ratio charts and instant PDF downloads for fitness profiles.
-- **🤖 Local AI Fitness Assistant** - Integrates an intelligent, privacy-focused Ollama chatbot acting as a 24/7 personal trainer.
-- **🎨 Glassmorphism Gym Dashboard** - Boasts a visually striking UI crafted specifically for fitness enthusiasts.
+**🧠 Dynamic BMI Calculation** - Computes precise Body Mass Index utilizing age, height, weight, and gender metrics.
+**📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI results.
+**📊 Analytics & Exportable Reports** - Features interactive height-to-weight ratio charts and instant PDF downloads for fitness profiles.
+**🤖 Local AI Fitness Assistant** - Integrates an intelligent, privacy-focused Ollama chatbot acting as a 24/7 personal trainer.
+**🎨 Glassmorphism Gym Dashboard** - Boasts a visually striking UI crafted specifically for fitness enthusiasts.
 
-## Architecture Features
+## 🏗️ Architecture Features
 
-- **Infrastructure** - Terraform Provisions whole Infra (EKS, ArgoCD, VPC) and statefile saved in remote backends(S3+DynamoDB).
-- **EKS Cluster** - K8s v1.35 and Instances(t3.medium) all in different AZs.
-- **Autoscaling** - Configured HPA which will scales upto 4 pods, 2 replicas and Rolling Updates.
-- **App-of-Apps Setup** - Deploy and Manage the child apps by executing a single Root Application Configuration File. No need to execute all the manifests, just one single root-app.yml
-- **Automation** - Automation Scripts like Makefile and Bootstrap.sh will automate the deployment of the App along with whole Infrastructure.
-- **GitOps with ArgoCD** - Auto Sync and Self-Heal.
+**🌐 Infrastructure as Code (IaC)** - Automates full-stack AWS provisioning (VPC, EKS, ArgoCD) via Terraform with secure, remote state locking using S3 and DynamoDB.
+**🛡️ High-Availability EKS Cluster** - Deploys Kubernetes v1.35 across multiple Availability Zones utilizing cost-optimized t3.medium nodes.
+**⚡ Automated Scaling & Rollouts** -  Implements Horizontal Pod Autoscaler (HPA) for dynamic scaling (up to 4 pods, minimum 2 replicas) paired with zero-downtime Rolling Updates.
+**🎛️ GitOps App-of-Apps Pattern** - Streamlines multi-application management by deploying a single root manifest (root-app.yml) that automatically orchestrates all child services.
+**🤖 One-Click Automation Pipelines** - Combines Makefile tasks and bootstrap shell scripts to completely automate entire infrastructure provisioning and application deployment.
+**🔄 Declarative GitOps via ArgoCD** - Ensures continuous reconciliation with active Auto-Sync and Self-Healing capabilities to eliminate configuration drift.
 
 ---
 
