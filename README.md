@@ -30,7 +30,7 @@
 ## 🚀 Application Features
 
 - **🧠 Dynamic BMI Calculation** - Computes precise Body Mass Index utilizing age, height, weight, and gender metrics.
-- **📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI results.
+- **📋 Tailored Fitness & Nutrition** - Generates custom workout regimes and premium, A-grade dietary plans mapped to specific BMI                                                results.
 - **📊 Analytics & Exportable Reports** - Features interactive height-to-weight ratio charts and instant PDF downloads for fitness profiles.
 - **🤖 Local AI Fitness Assistant** - Integrates an intelligent, privacy-focused Ollama chatbot acting as a 24/7 personal trainer.
 - **🎨 Glassmorphism Gym Dashboard** - Boasts a visually striking UI crafted specifically for fitness enthusiasts.
