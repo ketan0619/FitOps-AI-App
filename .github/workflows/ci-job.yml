@@ -1,77 +1,173 @@
-name: GitOps CI - Build & Push to DockerHub
-
+name: GitOps CI - Build & Push to DockerHub with AI Agent for DevSecOps
 on:
-  push:
-     branches: [main]
-     paths:
-        - '.'
-        - './.github/workflows/*'
-        - './manifests/**'
-  workflow_call:
+ push:
+   branches: [main]
+   paths:
+     - '.'
+     - './.github/workflows/*'
+     - './manifests/**'
+ workflow_call:
 
 permissions:
-  contents: write
+ contents: write
 
 env:
-  DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO }}
+ DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO }}
 
 jobs:
-  build-test-and-push:
-    name: Build, Test & Push Docker Image
-    runs-on: ubuntu-latest
+ build-test-and-push:
+   name: Build, Test & Push Docker Image
+   runs-on: ubuntu-latest
+   steps:
+     - name: Checkout code
+       uses: actions/checkout@v4
+       with:
+         fetch-depth: 0
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+     - name: Set image tag
+       id: tag
+       run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Set image tag
-        id: tag
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+     # ─── 1. DOWNLOAD ALL COMPLETED PARALLEL LOGS ───
+     - name: Download Parallel Scan Logs
+       uses: actions/download-artifact@v4
+       with:
+         path: parallel-security-logs/
+         ignore-on-no-artifact: true # Keeps the job running if scanners completely passed
 
-      - name: login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-            username: ${{ vars.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+     # ─── 2. DOCKER LOGIN & BUILD FOR TRIVY TESTING ───
+     - name: login to Docker Hub
+       uses: docker/login-action@v3
+       with:
+         username: ${{ vars.DOCKERHUB_USER }}
+         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+     - name: Set up Docker Buildx
+       uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./app
-          file: ./app/Dockerfile
-          push: true
-          pull: true
-          tags: |
-            ${{ env.DOCKERHUB_REPO }}:latest
-            ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+     - name: Build Local Image for Scanning
+       uses: docker/build-push-action@v6
+       with:
+         context: ./app
+         file: ./app/Dockerfile
+         push: false # Do NOT push to registry yet; test it first
+         load: true  # Loads the image locally into the runner daemon so Trivy can see it
+         tags: ${{ env.DOCKERHUB_REPO }}:test-scan
+         cache-from: type=gha
+         cache-to: type=gha,mode=max
 
-      - name: Trivy Scanner
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-            image-ref: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
-            severity: 'CRITICAL,HIGH'
-            exit-code: '1'
+     # ─── 3. EXECUTE TRIVY & CAPTURE LOGS ───
+     - name: Trivy Scanner
+       id: trivy
+       uses: aquasecurity/trivy-action@0.35.0
+       continue-on-error: true # Crucial: Let the runner proceed to self-healing if CVEs are found
+       with:
+         image-ref: ${{ env.DOCKERHUB_REPO }}:test-scan
+         severity: 'CRITICAL,HIGH'
+         exit-code: '1'
+         format: 'table'
+         output: 'trivy_errors.log'
 
-      - name: Update Kubernetes deployment manifest
-        run: |
-          sed -i "s|image: ${{ env.DOCKERHUB_REPO }}:.*|image: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}|" ./manifests/app/deployment.yml
+     # ─── 4. CONSOLIDATE ALL SYSTEM LOGS FOR OLLAMA ───
+     - name: Combine All Security Errors
+       id: log-master
+       run: |
+         touch master_pipeline_errors.log
+         
+         # Append parallel scanner logs
+         if [ -d "parallel-security-logs" ]; then
+           cat parallel-security-logs/*/*.log >> master_pipeline_errors.log 2>/dev/null || true
+         fi
+         
+         # Append the Trivy vulnerability log if Trivy failed
+         if [ "${{ steps.trivy.outcome }}" = "failure" ] && [ -s trivy_errors.log ]; then
+           echo "=== Trivy Image Vulnerability Report ===" >> master_pipeline_errors.log
+           cat trivy_errors.log >> master_pipeline_errors.log
+         fi
 
-      - name: Commit updated manifest
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout ${{ github.ref_name }} || git checkout main
-          git add manifests/
-          if ! git diff --staged --quiet; then
-            git commit -m "ci: update fitops-ai-app image to ${{ steps.tag.outputs.sha_short }} [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
-          else
-            echo "No manifest changes detected. Skipping push."
-          fi
+         # Determine if we need to awake the AI Agent
+         if [ -s master_pipeline_errors.log ]; then
+           echo "Security vulnerabilities or linting errors found. Running AI Agent."
+           echo "has_errors=true" >> $GITHUB_OUTPUT
+         else
+           echo "Everything is secure! Proceeding with final image push."
+           echo "has_errors=false" >> $GITHUB_OUTPUT
+         fi
 
+     # ─── 5. INSTANTIATE CACHED OLLAMA AGENT LOOP ───
+     - name: Cache Ollama Models
+       if: steps.log-master.outputs.has_errors == 'true'
+       id: cache-ollama
+       uses: actions/cache@v4
+       with:
+         path: ~/.ollama
+         key: ${{ runner.os }}-ollama-qwen2.5-coder-7b
+
+     - name: Start Ollama & Pull Model
+       if: steps.log-master.outputs.has_errors == 'true'
+       run: |
+         curl -fsSL https://ollama.com | sh
+         ollama serve > /dev/null 2>&1 &
+         sleep 5
+         if [ "${{ steps.cache-ollama.outputs.cache-hit }}" != "true" ]; then
+           ollama pull qwen2.5-coder:7b
+         fi
+
+     - name: Execute AI Auto-Fix Engine
+       if: steps.log-master.outputs.has_errors == 'true'
+       run: |
+         pip install openai
+         python .github/scripts/ai_coder.py master_pipeline_errors.log
+
+     - name: Commit AI Patches Back to SSoT
+       if: steps.log-master.outputs.has_errors == 'true'
+       run: |
+         git config user.name "github-actions[bot]"
+         git config user.email "github-actions[bot]@://github.com"
+         git checkout ${{ github.ref_name }} || git checkout main
+         
+         # ─── THE CLEANUP HOOK ───
+         echo "[AI CLEANUP] Removing temporary pipeline logs before commit..."
+         rm -rf master_pipeline_errors.log trivy_errors.log parallel-security-logs/
+
+         # Extra Safety: Tell git to explicitly ignore any remaining log files in this run
+         git rm --cached *.log 2>/dev/null || true
+
+         if [ -n "$(git status --porcelain)" ]; then
+           git add .
+           git commit -m "chore(ai-agent): autonomously resolve pipeline security vulnerabilities [skip ci]"
+           git push origin HEAD:${{ github.ref_name }}
+           echo "Vulnerabilities fixed and committed. Halting run to trigger a clean pipeline pass."
+           exit 1
+         else
+           echo "AI evaluated the files but no safe changes were performed."
+           exit 1
+         fi
+
+     # ─── 6. FINAL SECURE PRODUCTION BUILD & GITOPS DEPLOYMENT ───
+     # (This section only executes if steps.log-master.outputs.has_errors == 'false')
+     - name: Final Build and Push Verified Docker image
+       run: |
+         # Re-tag and push the safe build to registry
+         docker tag ${{ env.DOCKERHUB_REPO }}:test-scan ${{ env.DOCKERHUB_REPO }}:latest
+         docker tag ${{ env.DOCKERHUB_REPO }}:test-scan ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
+         docker push ${{ env.DOCKERHUB_REPO }}:latest
+         docker push ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}
+
+     - name: Update Kubernetes deployment manifest
+       run: |
+         sed - i "s|image: ${{ env.DOCKERHUB_REPO }}:.*|image: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}|" ./manifests/app/deployment.yml
+
+     - name: Commit updated manifest
+       run: |
+         git config user.name "github-actions[bot]"
+         git config user.email "github-actions[bot]@://github.com"
+         git checkout ${{ github.ref_name }} || git checkout main
+         git add manifests/
+         if ! git diff --staged --quiet; then
+           git commit -m "ci: update gitops-ai-app image to ${{ steps.tag.outputs.sha_short }} [skip ci]"
+           git push origin HEAD:${{ github.ref_name }}
+         else
+           echo "No manifest changes detected. Skipping push."
+         fi
 

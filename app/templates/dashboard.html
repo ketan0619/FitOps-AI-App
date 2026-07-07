@@ -1,69 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitOps AI Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div class="glass">
-
-    <img src="/static/logo.png" class="logo">
-    <h2>FitOps AI Dashboard</h2>
-
-    <!-- FORM -->
-    <form action="/generate" method="POST" class="grid">
-        <input type="number" name="age" placeholder="Age" required>
-        <input type="number" name="height" placeholder="Height (cm)" required>
-        <input type="number" name="weight" placeholder="Weight (kg)" required>
-
-        <select name="gender">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </select>
-
-        <select name="diet_type">
-            <option value="normal">Normal</option>
-            <option value="vegetarian">Vegetarian</option>
-            <option value="vegan">Vegan</option>
-        </select>
-
-        <button>Generate Plan</button>
-    </form>
-
-    <!-- CHART -->
-    <h3 style="margin-top:20px;">Progress</h3>
-    <canvas id="chart"></canvas>
-
-    <!-- CHATBOT -->
-    <h3>FitOps AI Coach</h3>
-    <div class="chat-box">
-        <input id="msg" placeholder="Ask anything...">
-        <button onclick="send()">Send</button>
-        <div id="chat"></div>
+<div class="dashboard-container">
+    
+    <!-- Top Header Banner Component -->
+    <div class="header-card">
+        <img src="/static/logo.png" class="logo-inline" alt="FitOps Logo">
+        <div>
+            <h2>FitOps AI Control Panel</h2>
+            <p class="tag-inline">Monitor your biometrics, visualize historical weight progress, and chat with your AI fitness coach.</p>
+        </div>
     </div>
 
+    <!-- Three-Column Operational Grid -->
+    <div class="main-grid">
+        
+        <!-- Column 1: Vital Metrics Inputs -->
+        <div class="glass card-panel">
+            <h3 class="panel-title">⚡ Vital Metrics</h3>
+            <form action="/" method="POST" class="grid">
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" name="age" placeholder="e.g. 25" required>
+                </div>
+                <div class="input-group">
+                    <label>Height (cm)</label>
+                    <input type="number" name="height" placeholder="e.g. 175" required>
+                </div>
+                <div class="input-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" name="weight" placeholder="e.g. 70" required>
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select name="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Dietary Type</label>
+                    <select name="diet_type">
+                        <option value="normal">Normal</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Generate Plan</button>
+            </form>
+        </div>
+
+        <!-- Column 2: Chart Analytics Component -->
+        <div class="glass card-panel">
+            <h3 class="panel-title">📈 Weight Analytics</h3>
+            <div class="chart-wrapper">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Column 3: The Connected AI Assistant -->
+        <div class="glass card-panel chat-panel">
+            <h3 class="panel-title">🤖 FitOps AI Coach</h3>
+            <div class="chat-wrapper">
+                <div id="chat" class="message-feed">
+                    <p class="system-msg"><b>AI:</b> Hello! Enter your metrics or ask me any training or nutrition questions.</p>
+                </div>
+                <div class="input-row">
+                    <input id="msg" placeholder="Ask about workouts, diet...">
+                    <button onclick="send()" class="send-btn">Send</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script>
 fetch('/progress-data')
 .then(res => res.json())
 .then(data => {
-    new Chart(document.getElementById('chart'), {
+    const ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.dates,
             datasets: [{
-                label: 'Weight Progress',
-                data: data.weights
+                label: 'Weight Evolution (kg)',
+                data: data.weights,
+                borderColor: '#00f0ff',
+                backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
             }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } }
+            }
         }
     });
 });
 
 function send(){
-    let msg = document.getElementById("msg").value;
+    let msgInput = document.getElementById("msg");
+    let msg = msgInput.value.trim();
+    if(!msg) return;
+
+    let chatFeed = document.getElementById("chat");
+    chatFeed.innerHTML += `<div class="msg-bubble user-bubble"><b>You:</b> ${msg}</div>`;
+    msgInput.value = "";
+    chatFeed.scrollTop = chatFeed.scrollHeight;
 
     fetch('/chat', {
         method:'POST',
@@ -72,12 +133,12 @@ function send(){
     })
     .then(res=>res.json())
     .then(data=>{
-        document.getElementById("chat").innerHTML += 
-            "<p><b>You:</b> "+msg+"</p>" +
-            "<p><b>AI:</b> "+data.reply+"</p>";
+        chatFeed.innerHTML += `<div class="msg-bubble ai-bubble"><b>AI:</b> ${data.reply}</div>`;
+        chatFeed.scrollTop = chatFeed.scrollHeight;
     });
 }
 </script>
 
 </body>
 </html>
+

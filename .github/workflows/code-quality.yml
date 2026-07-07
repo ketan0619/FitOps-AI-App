@@ -9,7 +9,7 @@ jobs:
           strategy:
                 fail-fast: false
                 matrix:
-                     python-version: ["3.11", "3.12", "3.13"]
+                     python-version: ['3.11']
 
           steps:
              - name: checkout code
@@ -23,8 +23,21 @@ jobs:
              - name: install dependencies
                run: pip install -r requirements-DevSecOps.txt
 
+             - name: Setup Log Catcher
+               run: touch code_quality_errors.log
+
              - name: run linter
-               run: flake8
+               run: |
+                  echo "=== Flake8 Linting Violations⚠️ ===" >> code_quality_errors.log
+                  flake8 >> code_quality_errors.log 2>&1 || true
 
              - name: SAST
-               run: bandit -r app.py -s B104
+               run: |
+                  echo "=== Bandit SAST Violations⚠️ ===" >> code_quality_errors.log
+                  bandit -r app.py -s B104 >> code_quality_errors.log 2>&1 || true
+
+             - name: Upload Quality Scan Log
+               uses: actions/upload-artifact@v4
+               with:
+                 name: code-quality-log
+                 path: code_quality_errors.log

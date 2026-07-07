@@ -48,11 +48,11 @@ def get_db_uri():
 
     # Fallback: build it from individual pieces (useful if your
     # GitHub Actions secrets are split into separate keys)
-    db_user = os.getenv("DB_USER", "fitops")
-    db_pass = os.getenv("DB_PASSWORD", "fitops123")
-    db_host = os.getenv("DB_HOST", "mysql")
-    db_port = os.getenv("DB_PORT", "3306")
-    db_name = os.getenv("DB_NAME", "fitopsdb")
+    db_user = os.getenv("MYSQL_USER", "fitops")
+    db_pass = os.getenv("MYSQL_PASSWORD", "fitops123")
+    db_host = os.getenv("MYSQL_HOST", "mysql")
+    db_port = os.getenv("MYSQL_PORT", "3306")
+    db_name = os.getenv("MYSQL_DATABASE", "fitopsdb")
 
     _db_uri = (
         f"mysql+pymysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
@@ -93,9 +93,10 @@ def dashboard():
             age = int(request.form.get('age', 0))
             gender = request.form.get('gender', 'male')
             activity = request.form.get('activity', 'moderate')
+            diet_type = request.form.get('diet_type', 'normal')
 
             bmi = calculate_bmi(weight, height)
-            plan = fitness_plan(bmi)
+            plan = fitness_plan(bmi, age, gender, diet_type)
             calories = calories_needed(weight, height, age, gender, activity)
 
             result = {
@@ -166,13 +167,13 @@ def register():
 def chat():
     msg = request.json.get("message")
 
-    ollama_base = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    ollama_base = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 
     try:
         response = requests.post(
             f"{ollama_base}/api/generate",
             json={
-                "model": "llama3",
+                "model": "tinyllama",
                 "prompt": f"You are a fitness expert coach. Answer:\n{msg}",
                 "stream": False
             }

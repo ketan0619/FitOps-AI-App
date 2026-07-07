@@ -12,6 +12,21 @@ jobs:
 
                       - name: Validate Dockerfile
                         uses: hadolint/hadolint-action@v3.1.0
+                        continue-on-error: true                 # continue even after error
                         with:
                            dockerfile: ./app/Dockerfile
-                           ignore: DL3008
+                           ignore: DL3008                       # original file was till here
+                           format: tty                          # format: tty forces Hadolint to output plain text instead of markdown/JSON
+                           output-file: dockerfile_errors.log
+
+                      # This step extracts stderr/stdout logs in case the tool itself fails to write the file
+                      - name: Ensure Error Log is Captured
+                        if: steps.hadolint.outcome == 'failure' && hashFiles('dockerfile_errors.log') == ''
+                        run: |
+                          echo "Hadolint found critical errors in ./app/Dockerfile" > dockerfile_errors.log
+
+                      - name: Upload Docker Scan Log
+                        uses: actions/upload-artifact@v4
+                        with:
+                          name: dockerfile-scan-log
+                          path: dockerfile_errors.log

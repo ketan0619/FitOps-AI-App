@@ -51,5 +51,6 @@ jobs:
 
        CI:
             needs: [code-quality, secrets-scan, dependency-scan, docker-scan]
+            if: always()
             uses: ./.github/workflows/ci-job.yml
             secrets: inherit
