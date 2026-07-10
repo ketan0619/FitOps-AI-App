@@ -46,7 +46,7 @@
 
 ---
 
-## Architecture Diagram
+## 📐 Architecture Diagram
 
 <img width="1408" height="768" alt="FitOps-Workflow" src="https://github.com/user-attachments/assets/4c026815-d769-4936-9fcb-151fc958ede0" />
 
