@@ -106,7 +106,7 @@ jobs:
      - name: Start Ollama & Pull Model
        if: steps.log-master.outputs.has_errors == 'true'
        run: |
-         curl -fsSL https://ollama.com | sh
+         curl -fsSL https://ollama.com/install.sh | sh
          ollama serve > /dev/null 2>&1 &
          echo "Waiting for Ollama to spin up..."
          sleep 5
