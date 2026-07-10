@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import re
 from openai import OpenAI
 
 def get_failed_logs(log_file_path):
@@ -18,10 +19,9 @@ def run_agent():
     log_path = sys.argv[1]
     error_context = get_failed_logs(log_path)
     
-    # Connect to the local Ollama service running on the runner
     client = OpenAI(
         base_url="http://localhost:11434/v1",
-        api_key="ollama" # Required by the client but ignored by Ollama
+        api_key="ollama" 
     )
     
     system_prompt = (
@@ -31,41 +31,44 @@ def run_agent():
         "1. Fix SAST (Flake8, Bandit), Dockerfile (Hadolint), or Dependency (pip-audit) issues.\n"
         "2. Provide your output strictly in valid JSON format matching this schema:\n"
         '{"file_path": "relative/path/to/file", "new_content": "Full content of the file after your fix"}\n'
-        "3. Output only the JSON. Do not include markdown code blocks like ```json."
-        "4. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'. "
-        "Only fix the underlying source files (e.g., Python scripts, Dockerfiles, requirements.txt)."
+        "3. Output ONLY the raw JSON object. Do not wrap your response in markdown code blocks like ```json or ```.\n"
+        "4. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'."
     )
     
     user_prompt = f"The scanning pipeline failed with these logs:\n\n{error_context}\n\nInspect the error, fix the file, and return the JSON payload."
     
     try:
         response = client.chat.completions.create(
-            model="qwen2.5-coder:7b", # Excellent model for syntax and structure processing
+            model="qwen2.5-coder:7b",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.1 # Low temperature ensures strict format adherence
+            temperature=0.1
         )
         
-        raw_content = response.choices[0].message.content.strip()
+        raw_content = response.choices.message.content.strip()
+        print(f"[AI DEBUG] Raw Model Output:\n{raw_content}\n")
         
-        # Clean up code blocks if the model accidentally includes them
-        if raw_content.startswith("```"):
-            raw_content = raw_content.split("\n", 1)[1].rsplit("\n", 1)[0].strip()
-            if raw_content.startswith("json"):
-                raw_content = raw_content.split("\n", 1)[1].strip()
+        # Regex cleanup hook: Extract raw JSON content if the model used Markdown wrappers
+        json_match = re.search(r'\{.*\}', raw_content, re.DOTALL)
+        if json_match:
+            clean_json = json_match.group(0)
+        else:
+            clean_json = raw_content
 
-        result = json.loads(raw_content)
+        result = json.loads(clean_json)
         file_to_fix = result.get("file_path")
         fixed_content = result.get("new_content")
         
         if file_to_fix and fixed_content:
             print(f"[AI AGENT] Applying local Ollama self-healing fix to: {file_to_fix}")
+            # Ensure target parent directories exist before writing
+            os.makedirs(os.path.dirname(file_to_fix), exist_ok=True)
             with open(file_to_fix, 'w') as f:
                 f.write(fixed_content)
         else:
-            print("[AI AGENT] Local agent did not output a structured fix.")
+            print("[AI AGENT] Local agent did not output valid 'file_path' and 'new_content' parameters.")
             
     except Exception as e:
         print(f"[AI AGENT] Error processing agent request: {str(e)}")
