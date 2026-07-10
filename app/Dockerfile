@@ -1,36 +1,45 @@
-# Stage 1: Build dependencies using Python 3.11
-FROM python:3.11-slim-bookworm AS builder
-WORKDIR /app
+# =====================================================================
+# STAGE 1: Compilation and Artifact Building Core Matrix
+# =====================================================================
+FROM python:3.13-slim AS builder
 
-# Install build tools and Pillow dependencies
+# Install temporary build headers required to compile Pillow wheels from source
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libjpeg-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-
-# Target standard site-packages to ensure clean path resolution
-RUN pip install --no-cache-dir --target=/install/site-packages -r requirements.txt
-
-# Stage 2: Distroless Runtime matching Python 3.11 (Debian 12 Bookworm)
-FROM gcr.io/distroless/python3-debian12:nonroot
 WORKDIR /app
 
-# 1. Copy the shared system libraries that Pillow needs to run
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libjpeg.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libz.so* /usr/lib/x86_64-linux-gnu/
+COPY requirements.txt .
 
-# 2. Copy the Python packages into the correct Python 3.11 path
-COPY --from=builder /install/site-packages /usr/lib/python3/dist-packages
+# Install dependencies into a separate local wheel directory path
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --target=/app/dependencies -r requirements.txt
 
-# 3. Copy application files
+# =====================================================================
+# STAGE 2: Ultra-Slim Production Distroless Runtime Environment
+# =====================================================================
+FROM gcr.io/distroless/python3-debian12:latest
+
+WORKDIR /app
+
+# Pull down the compiled Python site-packages from the builder layer
+COPY --from=builder /app/dependencies /app/dependencies
+
+# Inject shared system graphics libraries natively bundled inside Debian 12
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libjpeg* /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libz* /usr/lib/x86_64-linux-gnu/
+
+# Copy your core application assets inside the working execution layout
 COPY . .
 
-EXPOSE 8080
+# Point the Python interpreter layer to read the isolated dependencies directory
+ENV PYTHONPATH=/app/dependencies
 ENV PORT=8080
-ENV PYTHONPATH=/usr/lib/python3/dist-packages
 
-ENTRYPOINT ["/usr/bin/python3", "-m", "gunicorn", "app:app", "-b", "0.0.0.0:8080", "--workers", "4", "--threads", "2"]
+EXPOSE 8080
 
+# Distroless has no shell (/bin/sh), so we call gunicorn directly via an explicit JSON array
+ENTRYPOINT ["/app/dependencies/bin/gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "--threads", "2", "app:app"]
