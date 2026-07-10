@@ -118,7 +118,7 @@ jobs:
        if: steps.log-master.outputs.has_errors == 'true'
        run: |
          pip install openai
-         python .github/scripts/ai_coder.py master_pipeline_errors.log
+         python .github/scripts/ai-agent.py master_pipeline_errors.log
 
      - name: Commit AI Patches Back to SSoT
        if: steps.log-master.outputs.has_errors == 'true'
