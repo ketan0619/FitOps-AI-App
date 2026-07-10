@@ -1,60 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>FitOps AI Result</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitOps AI Matrix Results</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Cyberpunk UI Additions for the BMI Gauge Meter */
+        .bmi-container {
+            margin-bottom: 25px;
+            background: rgba(22, 26, 35, 0.6);
+            border: 1px solid #262e3d;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        .bmi-title {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .bmi-gauge-track {
+            height: 12px;
+            width: 100%;
+            background: linear-gradient(to right, #38bdf8 0%, #00ff66 30%, #facc15 65%, #ff0055 100%);
+            border-radius: 10px;
+            position: relative;
+            margin-top: 15px;
+        }
+        .bmi-marker {
+            position: absolute;
+            top: -6px;
+            width: 4px;
+            height: 24px;
+            background: #ffffff;
+            box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease-in-out;
+        }
+        .bmi-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-top: 6px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<div class="glass">
+<div class="dashboard-container">
 
-    <img src="/static/logo.png" class="logo">
+    <!-- Gym Branding Header Matrix -->
+    <div class="header-card">
+        <div class="logo-wrapper">
+            <img src="/static/logo.png" class="logo-inline" alt="FitOps Logo">
+        </div>
+        <div class="header-text">
+            <h2>GENERATED <span class="neon-accent">TRAINING</span> PROFILE</h2>
+            <p class="tag-inline">TARGET METRICS GENERATED SUCCESSFULLY • CLASSIFICATION: {{ result.category|upper }}</p>
+        </div>
+        <div class="status-badge matrix-badge">
+            <span class="pulse-dot"></span> PROFILE COMPILED
+        </div>
+        <a href="/logout" class="logout-anchor">LOGOUT</a>
+    </div>
 
-    <h2>Your Fitness Plan</h2>
-
-
-    <div class="cards">
-        <div class="card">
-            <h3>BMI</h3>
-            <p>{{ result.bmi }}</p>
+    <!-- Core Metrics Breakdown Cards -->
+    <div class="results-cards-row">
+        <div class="glass metrics-stat-card">
+            <div class="stat-label">BODY MASS INDEX</div>
+            <div class="stat-value volt-highlight">{{ result.bmi }}</div>
         </div>
 
-        <div class="card">
-            <h3>Calories</h3>
-            <p>{{ result.calories }}</p>
+        <div class="glass metrics-stat-card">
+            <div class="stat-label">DAILY CALORIC TARGET</div>
+            <div class="stat-value neon-highlight">{{ result.calories }} <span class="stat-unit">KCAL</span></div>
         </div>
 
-        <div class="card">
-            <h3>Goal</h3>
-            <p>{{ result.goal }}</p>
+        <div class="glass metrics-stat-card">
+            <div class="stat-label">PRIMARY OBJECTIVE</div>
+            <div class="stat-value objective-highlight">{{ result.goal|upper if result.goal else 'OPTIMIZE' }}</div>
         </div>
     </div>
 
-    
-    <h3>Category: {{ result.category }}</h3>
+    <!-- Embedded Cyberpunk Matrix Gauge Subpanel Component -->
+    <div class="glass" style="margin-bottom: 24px; padding: 20px;">
+        <div class="bmi-container" style="margin-bottom: 0;">
+            <div class="bmi-title">Biometric Index Matrix Calibration</div>
+            <div class="bmi-gauge-track">
+                <div class="bmi-marker" id="gaugeMarker" style="left: 0%;"></div>
+            </div>
+            <div class="bmi-labels">
+                <span>18.5 (UNDERWEIGHT)</span>
+                <span>24.9 (NORMAL)</span>
+                <span>29.9 (OVERWEIGHT)</span>
+                <span>35.0+ (OBESE)</span>
+            </div>
+        </div>
+    </div>
 
-    
-    <h3>Workout Plan</h3>
-    <ul>
-        {% for day, plan in result.weekly_plan.items() %}
-            <li><b>{{ day }}</b>: {{ plan }}</li>
-        {% endfor %}
-    </ul>
+    <!-- Main Content Breakdown Layout Split -->
+    <div class="results-split-grid">
 
+        <!-- Column 1: Weekly Exercise Plan -->
+        <div class="glass schedule-panel">
+            <h3 class="panel-title">🏋️‍♂️ WEEKLY WORKOUT PROTOCOL</h3>
+            <div class="workout-log-list">
+                {% if result.weekly_plan %}
+                    {% for day, plan in result.weekly_plan.items() %}
+                        <div class="log-row">
+                            <div class="log-day">{{ day|upper }}</div>
+                            <div class="log-assignment">{{ plan }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="color: #64748b; padding: 15px;">No active protocol records generated.</div>
+                {% endif %}
+            </div>
+        </div>
 
-    <h3>Tips</h3>
-    <ul>
-        {% for tip in result.tips %}
-            <li>{{ tip }}</li>
-        {% endfor %}
-    </ul>
+        <!-- Column 2: Advanced Coach Tips & Actions -->
+        <div class="glass tips-action-panel">
+            <h3 class="panel-title">💡 STRATEGIC COACHING TIPS</h3>
+            <ul class="gym-tips-list">
+                {% if result.tips %}
+                    {% for tip in result.tips %}
+                        <li><span class="bullet-volt">▶</span> {{ tip }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li><span class="bullet-volt">▶</span> Retain baseline structural form parameters.</li>
+                {% endif %}
+            </ul>
 
-    
-    <a href="/download" class="btn">Download PDF</a>
+            <!-- Core Operations Footnotes Navigation Links -->
+            <div class="action-footer-cluster">
+                <a href="/download" class="action-link-btn download-btn">DOWNLOAD PDF REPORT</a>
+                <a href="/" class="action-link-btn dashboard-btn">RETURN TO DASHBOARD</a>
+            </div>
+        </div>
 
-    <a href="/" class="btn">Back to Dashboard</a>
+    </div>
 
 </div>
 
+<script>
+// Dynamic Needle Placement Engine
+function updateBmiGauge(bmi) {
+    if (!bmi || isNaN(bmi) || bmi <= 0) return;
+    let minBmi = 15;
+    let maxBmi = 40;
+    let percentage = ((bmi - minBmi) / (maxBmi - minBmi)) * 100;
+    percentage = Math.max(0, Math.min(100, percentage));
+    document.getElementById('gaugeMarker').style.left = percentage + '%';
+}
+
+// Automatically fire needle positioning upon page compilation completion
+document.addEventListener("DOMContentLoaded", function() {
+    const activeBmiVal = parseFloat("{{ result.bmi if result.bmi else 0 }}");
+    if(activeBmiVal > 0) {
+        updateBmiGauge(activeBmiVal);
+    }
+});
+</script>
+
 </body>
 </html>
+

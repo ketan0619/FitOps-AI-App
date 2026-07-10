@@ -5,77 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitOps AI Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Fixed Script Asset Core Framework Injection -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        /* Cyberpunk UI Additions for the BMI Gauge Meter */
+        .bmi-container {
+            margin-bottom: 25px;
+            background: rgba(22, 26, 35, 0.6);
+            border: 1px solid #262e3d;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .bmi-title {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .bmi-gauge-track {
+            height: 12px;
+            width: 100%;
+            background: linear-gradient(to right, #38bdf8 0%, #00ff66 30%, #facc15 65%, #ff0055 100%);
+            border-radius: 10px;
+            position: relative;
+            margin-top: 15px;
+        }
+        .bmi-marker {
+            position: absolute;
+            top: -6px;
+            width: 4px;
+            height: 24px;
+            background: #ffffff;
+            box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease-in-out;
+        }
+        .bmi-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-top: 6px;
+            font-weight: bold;
+        }
+        .bmi-score-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 5px;
+        }
+        .bmi-value {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ff66;
+            text-shadow: 0 0 10px rgba(0,255,102,0.3);
+        }
+        .bmi-status-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ff0055;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="dashboard-container">
-    
-    <!-- Top Header Banner Component -->
+
+    <!-- Heavy Branding Gym Header -->
     <div class="header-card">
-        <img src="/static/logo.png" class="logo-inline" alt="FitOps Logo">
-        <div>
-            <h2>FitOps AI Control Panel</h2>
-            <p class="tag-inline">Monitor your biometrics, visualize historical weight progress, and chat with your AI fitness coach.</p>
+        <div class="logo-wrapper">
+            <img src="/static/logo.png" class="logo-inline" alt="FitOps Logo">
         </div>
+        <div class="header-text">
+            <h2>FITOPS <span class="neon-accent">AI</span> CONTROL PANEL</h2>
+            <p class="tag-inline">PUMP IRON • TRACK DATA • OPTIMIZE RECOVERY</p>
+        </div>
+        <div class="status-badge">
+            <span class="pulse-dot"></span> COACH ENGINE ONLINE
+        </div>
+        <a href="/logout" class="logout-anchor">LOGOUT</a>
     </div>
 
-    <!-- Three-Column Operational Grid -->
+    <!-- Multi-Column Performance Grid -->
     <div class="main-grid">
-        
-        <!-- Column 1: Vital Metrics Inputs -->
+
+        <!-- Column 1: Workout & Biometric Parameters -->
         <div class="glass card-panel">
-            <h3 class="panel-title">⚡ Vital Metrics</h3>
+            <h3 class="panel-title">⚡ BIOMETRIC INPUT</h3>
             <form action="/" method="POST" class="grid">
                 <div class="input-group">
-                    <label>Age</label>
-                    <input type="number" name="age" placeholder="e.g. 25" required>
+                    <label>AGE</label>
+                    <input type="number" name="age" placeholder="e.g. 25" value="{{ inputs.age if inputs else '' }}" required>
                 </div>
                 <div class="input-group">
-                    <label>Height (cm)</label>
-                    <input type="number" name="height" placeholder="e.g. 175" required>
+                    <label>HEIGHT (CM)</label>
+                    <input type="number" name="height" placeholder="e.g. 175" value="{{ inputs.height if inputs else '' }}" required>
                 </div>
                 <div class="input-group">
-                    <label>Weight (kg)</label>
-                    <input type="number" name="weight" placeholder="e.g. 70" required>
+                    <label>WEIGHT (KG)</label>
+                    <input type="number" name="weight" placeholder="e.g. 70" value="{{ inputs.weight if inputs else '' }}" required>
                 </div>
                 <div class="input-group">
-                    <label>Gender</label>
+                    <label>GENDER</label>
                     <select name="gender">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
+                        <option value="male" {% if inputs and inputs.gender == 'male' %}selected{% endif %}>MALE</option>
+                        <option value="female" {% if inputs and inputs.gender == 'female' %}selected{% endif %}>FEMALE</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>Dietary Type</label>
+                    <label>DIETARY PROTOCOL</label>
                     <select name="diet_type">
-                        <option value="normal">Normal</option>
-                        <option value="vegetarian">Vegetarian</option>
-                        <option value="vegan">Vegan</option>
+                        <option value="normal" {% if inputs and inputs.diet_type == 'normal' %}selected{% endif %}>NORMAL</option>
+                        <option value="vegetarian" {% if inputs and inputs.diet_type == 'vegetarian' %}selected{% endif %}>VEGETARIAN</option>
+                        <option value="vegan" {% if inputs and inputs.diet_type == 'vegan' %}selected{% endif %}>VEGAN</option>
                     </select>
                 </div>
-                <button type="submit" class="submit-btn">Generate Plan</button>
+                <button type="submit" class="submit-btn">EXECUTE MATRIX</button>
             </form>
         </div>
 
-        <!-- Column 2: Chart Analytics Component -->
+        <!-- Column 2: Core Analytic Tracking Display -->
         <div class="glass card-panel">
-            <h3 class="panel-title">📈 Weight Analytics</h3>
-            <div class="chart-wrapper">
+            <h3 class="panel-title">📊 PERFORMANCE EVOLUTION</h3>
+            
+            <!-- Real-time Interactive BMI Dynamic Meter Component -->
+            <div class="bmi-container">
+                <div class="bmi-title">Biometric Index Matrix</div>
+                <div class="bmi-score-display">
+                    <div class="bmi-value" id="bmiValueDisplay">{% if result and result.bmi %}{{ "%.1f"|format(result.bmi|float) }}{% else %}--.-{% endif %}</div>
+                    <div class="bmi-status-text" id="bmiStatusDisplay">{% if result and result.category %}{{ result.category|upper }}{% else %}AWAITING INPUT{% endif %}</div>
+                </div>
+                <div class="bmi-gauge-track">
+                    <div class="bmi-marker" id="gaugeMarker" style="left: 0%;"></div>
+                </div>
+                <div class="bmi-labels">
+                    <span>18.5 (LOW)</span>
+                    <span>24.9 (NORM)</span>
+                    <span>29.9 (HIGH)</span>
+                </div>
+            </div>
+
+            <!-- Historical Mass Vector Graph Area -->
+            <div class="chart-wrapper" style="position: relative; width: 100%; height: auto; min-height: 220px;">
                 <canvas id="chart"></canvas>
             </div>
         </div>
 
-        <!-- Column 3: The Connected AI Assistant -->
+        <!-- Column 3: The Dedicated Training AI Coach -->
         <div class="glass card-panel chat-panel">
-            <h3 class="panel-title">🤖 FitOps AI Coach</h3>
+            <h3 class="panel-title">🏋️‍♂️ AI FITNESS COACH</h3>
             <div class="chat-wrapper">
                 <div id="chat" class="message-feed">
-                    <p class="system-msg"><b>AI:</b> Hello! Enter your metrics or ask me any training or nutrition questions.</p>
+                    <p class="system-msg"><b>COACH:</b> Systems active. Drop your biometrics above or drop your training questions below to optimize your split.</p>
                 </div>
                 <div class="input-row">
-                    <input id="msg" placeholder="Ask about workouts, diet...">
-                    <button onclick="send()" class="send-btn">Send</button>
+                    <input id="msg" placeholder="Ask about macros, routines, splits...">
+                    <button onclick="send()" class="send-btn">SEND</button>
                 </div>
             </div>
         </div>
@@ -84,6 +173,30 @@
 </div>
 
 <script>
+// Dynamic Placement Logic Engine for the Graphic Matrix Indicator Pin
+function updateBmiGauge(bmi) {
+    if (!bmi || isNaN(bmi) || bmi <= 0) {
+        document.getElementById('gaugeMarker').style.left = '0%';
+        return;
+    }
+    
+    // Bounds definitions: min calculation limit map (15) to max calculation limit map (40)
+    let minBmi = 15;
+    let maxBmi = 40;
+    let percentage = ((bmi - minBmi) / (maxBmi - minBmi)) * 100;
+    
+    // Confine output boundary thresholds strictly between 0% and 100%
+    percentage = Math.max(0, Math.min(100, percentage));
+    document.getElementById('gaugeMarker').style.left = percentage + '%';
+}
+
+// Automatically sync needle on standard page compilation phase
+const activeBmiVal = parseFloat("{{ result.bmi if (result and result.bmi) else 0 }}");
+if(activeBmiVal > 0) {
+    updateBmiGauge(activeBmiVal);
+}
+
+// Fetch historical weight tracking curves onto lower subpanel 
 fetch('/progress-data')
 .then(res => res.json())
 .then(data => {
@@ -93,12 +206,14 @@ fetch('/progress-data')
         data: {
             labels: data.dates,
             datasets: [{
-                label: 'Weight Evolution (kg)',
+                label: 'MASS EVOLUTION (KG)',
                 data: data.weights,
-                borderColor: '#00f0ff',
-                backgroundColor: 'rgba(0, 240, 255, 0.1)',
-                borderWidth: 2,
-                tension: 0.3,
+                borderColor: '#00ff66',
+                backgroundColor: 'rgba(0, 255, 102, 0.03)',
+                borderWidth: 3,
+                pointBackgroundColor: '#00ff66',
+                pointRadius: 4,
+                tension: 0.1,
                 fill: true
             }]
         },
@@ -106,11 +221,11 @@ fetch('/progress-data')
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#fff' } }
+                legend: { labels: { color: '#ffffff', font: { family: 'Poppins', weight: 'bold' } } }
             },
             scales: {
-                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa' } }
+                x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#94a3b8' } }
             }
         }
     });
@@ -122,7 +237,7 @@ function send(){
     if(!msg) return;
 
     let chatFeed = document.getElementById("chat");
-    chatFeed.innerHTML += `<div class="msg-bubble user-bubble"><b>You:</b> ${msg}</div>`;
+    chatFeed.innerHTML += `<div class="msg-bubble user-bubble"><b>YOU:</b> ${msg}</div>`;
     msgInput.value = "";
     chatFeed.scrollTop = chatFeed.scrollHeight;
 
@@ -133,7 +248,7 @@ function send(){
     })
     .then(res=>res.json())
     .then(data=>{
-        chatFeed.innerHTML += `<div class="msg-bubble ai-bubble"><b>AI:</b> ${data.reply}</div>`;
+        chatFeed.innerHTML += `<div class="msg-bubble ai-bubble"><b>COACH:</b> ${data.reply}</div>`;
         chatFeed.scrollTop = chatFeed.scrollHeight;
     });
 }
