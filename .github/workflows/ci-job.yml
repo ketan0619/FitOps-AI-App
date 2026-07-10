@@ -130,6 +130,7 @@ jobs:
          # ─── THE CLEANUP HOOK ───
          echo "[AI CLEANUP] Removing temporary pipeline logs before commit..."
          rm -rf master_pipeline_errors.log trivy_errors.log parallel-security-logs/
+         rm -rf .cache/
 
          # Extra Safety: Tell git to explicitly ignore any remaining log files in this run
          git rm --cached *.log 2>/dev/null || true

@@ -6,3 +6,11 @@ tfplan
 .secret_backup/
 manifests/platform/gateway.yml
 .secret_backup/
+# Trivy cache and DBs
+.cache/
+trivy/
+
+# DevSecOps Pipeline logs
+*.log
+parallel-security-logs/
+
