@@ -47,7 +47,7 @@ def run_agent():
             temperature=0.1
         )
         
-        raw_content = response.choices.message.content.strip()
+        raw_content = response.choices[0].message.content.strip()
         print(f"[AI DEBUG] Raw Model Output:\n{raw_content}\n")
         
         # Regex cleanup hook: Extract raw JSON content if the model used Markdown wrappers
