@@ -1,4 +1,4 @@
-# .github/scripts/ai-agent.py
+# .github/scripts/ai_agent.py
 import os
 import sys
 import json
@@ -14,12 +14,10 @@ def get_failed_logs(log_file_path):
 def get_repo_files():
     file_list = []
     for root, dirs, files in os.walk('.'):
-        # Filter out massive irrelevant runtimes, system logs, or hidden paths
         if '.git' in root or '.cache' in root or 'parallel-security-logs' in root:
             continue
         for file in files:
             f_path = os.path.join(root, file).replace('./', '')
-            # Explicitly lock down edits ONLY to things you can actually fix
             if f_path.endswith('.txt') or f_path.endswith('.py') or 'Dockerfile' in f_path:
                 file_list.append(f_path)
     return file_list
@@ -31,8 +29,6 @@ def run_agent():
         
     log_path = sys.argv[1]
     error_context = get_failed_logs(log_path)
-    
-    # ─── ENSURE VARIABLE IS INSTANTIATED PROPERLY ───
     valid_repo_files = get_repo_files()
     
     client = OpenAI(
@@ -44,17 +40,18 @@ def run_agent():
         "You are an automated code quality maintenance system. Your sole task is routine software updates, "
         "fixing application syntax formatting, and upgrading package version numbers to comply with stable software formats.\n\n"
         "CRITICAL INSTRUCTIONS:\n"
-        "1. You must choose EXACTLY ONE target file from the provided repository files list to patch.\n"
-        "2. You must output the entire FULL file contents in your response. Do not use placeholders like '// ...' or '// Original code'. Your output must be a complete drop-in replacement.\n"
-        "3. You must output a single JSON object containing 'file_path' and 'new_content'. Do not output any other schema layout."
+        "1. You must choose EXACTLY ONE target file name from the provided repository files list to patch.\n"
+        "2. Do NOT invent new directory names. Use the exact relative path strings provided.\n"
+        "3. You must output the entire FULL file contents in your response. Your output must be a complete drop-in replacement.\n"
+        "4. You must output a single JSON object containing 'file_path' and 'new_content'. Do not output any other schema layout."
     )
     
     user_prompt = (
         f"Available files in the repository you are allowed to modify:\n{json.dumps(valid_repo_files, indent=2)}\n\n"
         f"The background software validation engine reported the following log updates:\n\n"
         f"{error_context}\n\n"
-        f"INSTRUCTION: Choose the matching file from the allowed repository files list, update its contents completely to resolve the issues (e.g., bump a package version or fix application code), and return the output matching this exact schema:\n"
-        f'{{"file_path": "insert_chosen_file_path_here", "new_content": "insert_complete_full_modified_file_content_here"}}'
+        f"INSTRUCTION: Choose the matching file from the allowed repository files list, update its contents completely to resolve the issues, and return the output matching this exact schema:\n"
+        f'{{"file_path": "insert_chosen_file_path_from_list_here", "new_content": "insert_complete_full_modified_file_content_here"}}'
     )
     
     json_schema = {
@@ -90,16 +87,29 @@ def run_agent():
             clean_json = raw_content
 
         result = json.loads(clean_json)
-        file_to_fix = result.get("file_path")
+        file_to_fix = result.get("file_path", "").strip()
         fixed_content = result.get("new_content")
         
+        # ─── PATH NORMALIZER HOOK ───
+        # Extract just the pure base file name (e.g., 'requirements.txt' from '/path/to/python-pkg/requirements.txt')
+        base_filename = os.path.basename(file_to_fix)
+        
+        # Look if a file with this identical base name exists inside your valid repository structure
+        matched_path = None
+        for repo_file in valid_repo_files:
+            if repo_file == file_to_fix or os.path.basename(repo_file) == base_filename:
+                matched_path = repo_file
+                break
+        
+        if matched_path:
+            file_to_fix = matched_path
+            
         if file_to_fix and fixed_content:
-            # ─── FIXED VARIABLE REFERENCE HERE ───
             if file_to_fix not in valid_repo_files or file_to_fix.endswith('.log') or '.github' in file_to_fix:
                 print(f"[AI AGENT] Safety trigger: Model tried to write out-of-bounds or protected file: {file_to_fix}")
                 sys.exit(1)
                 
-            print(f"[AI AGENT] Applying local Ollama self-healing fix to: {file_to_fix}")
+            print(f"[AI AGENT] Applying normalized local Ollama self-healing fix to: {file_to_fix}")
             with open(file_to_fix, 'w') as f:
                 f.write(fixed_content)
         else:
