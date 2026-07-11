@@ -11,6 +11,17 @@ def get_failed_logs(log_file_path):
             return f.read()
     return "No log file found."
 
+def get_repo_files():
+    # Scan the workspace directory so the AI agent knows exactly what files exist
+    file_list = []
+    for root, dirs, files in os.walk('.'):
+        # Skip hidden git and cache folders
+        if '.git' in root or '.cache' in root or 'parallel-security-logs' in root:
+            continue
+        for file in files:
+            file_list.append(os.path.join(root, file).replace('./', ''))
+    return file_list
+
 def run_agent():
     if len(sys.argv) < 2:
         print("[AI AGENT] Missing log file path argument.")
@@ -36,9 +47,12 @@ def run_agent():
         "5. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'."
     )
     
-    user_prompt = ( f"The background software validation engine reported the following routine version matching log updates:\n\n"
+    user_prompt = (
+        f"Available files in the repository:\n{json.dumps(repo_files, indent=2)}\n\n"
+        f"The background software validation engine reported the following log updates:\n\n"
         f"{error_context}\n\n"
-        f"Please update the target configuration file to matching stable software formats." 
+        f"INSTRUCTION: Choose the broken file from the repository files list, update its contents to fix the issues listed in the log, and return the output matching this exact schema:\n"
+        f'{{"file_path": "insert_chosen_file_path_here", "new_content": "insert_complete_modified_file_content_here"}}'
     )
 
     # Define a strict JSON schema for Ollama to follow
@@ -86,9 +100,12 @@ def run_agent():
         fixed_content = result.get("new_content")
         
         if file_to_fix and fixed_content:
+            # Prevent the model from hallucinating or modifying system log/workflow files
+            if file_to_fix not in repo_files or file_to_fix.endswith('.log') or '.github' in file_to_fix:
+                print(f"[AI AGENT] Safety trigger: Model tried to write out-of-bounds file: {file_to_fix}")
+                sys.exit(1)
+                
             print(f"[AI AGENT] Applying local Ollama self-healing fix to: {file_to_fix}")
-            if os.path.dirname(file_to_fix):
-                os.makedirs(os.path.dirname(file_to_fix), exist_ok=True)
             with open(file_to_fix, 'w') as f:
                 f.write(fixed_content)
         else:
