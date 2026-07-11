@@ -48,7 +48,7 @@ def run_agent():
     )
     
     user_prompt = (
-        f"Available files in the repository:\n{json.dumps(get_repo_files, indent=2)}\n\n"
+        f"Available files in the repository:\n{json.dumps(get_repo_files(), indent=2)}\n\n"
         f"The background software validation engine reported the following log updates:\n\n"
         f"{error_context}\n\n"
         f"INSTRUCTION: Choose the broken file from the repository files list, update its contents to fix the issues listed in the log, and return the output matching this exact schema:\n"
