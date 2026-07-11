@@ -25,17 +25,22 @@ def run_agent():
     )
     
     system_prompt = (
-        "You are an expert DevSecOps AI Engineer. Your job is to analyze security/linting errors "
-        "and generate the exact replacement code or configuration to fix the issue.\n\n"
+        "You are an automated code quality maintenance system. Your sole task is routine software updates, "
+        "fixing syntax formatting, and incrementing package versions to comply with the latest standard software updates.\n\n"
         "Rules:\n"
-        "1. Fix SAST (Flake8, Bandit), Dockerfile (Hadolint), or Dependency (pip-audit) issues.\n"
-        "2. Provide your output strictly in valid JSON format matching this schema:\n"
-        '{"file_path": "relative/path/to/file", "new_content": "Full content of the file after your fix"}\n'
-        "3. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'."
+        "1. Read the provided compilation, style, or dependency log entries.\n"
+        "2. Identify which source file or config file requires a version upgrade or formatting rewrite.\n"
+        "3. Provide your output strictly in valid JSON format matching this schema:\n"
+        '{"file_path": "relative/path/to/file", "new_content": "Full content of the file after your updates"}\n'
+        "4. DO NOT provide comments, introductions, or explanations. Only emit the JSON schema parameters.\n"
+        "5. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'."
     )
     
-    user_prompt = f"The scanning pipeline failed with these logs:\n\n{error_context}\n\nInspect the error, fix the file, and return the JSON payload."
-    
+    user_prompt = ( f"The background software validation engine reported the following routine version matching log updates:\n\n"
+        f"{error_context}\n\n"
+        f"Please update the target configuration file to matching stable software formats." 
+    )
+
     # Define a strict JSON schema for Ollama to follow
     json_schema = {
         "type": "object",
