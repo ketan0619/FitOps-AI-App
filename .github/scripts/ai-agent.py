@@ -31,11 +31,26 @@ def run_agent():
         "1. Fix SAST (Flake8, Bandit), Dockerfile (Hadolint), or Dependency (pip-audit) issues.\n"
         "2. Provide your output strictly in valid JSON format matching this schema:\n"
         '{"file_path": "relative/path/to/file", "new_content": "Full content of the file after your fix"}\n'
-        "3. Output ONLY the raw JSON object. Do not wrap your response in markdown code blocks like ```json or ```.\n"
-        "4. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'."
+        "3. CRITICAL: Never attempt to edit, modify, or output changes to any file ending in '.log'."
     )
     
     user_prompt = f"The scanning pipeline failed with these logs:\n\n{error_context}\n\nInspect the error, fix the file, and return the JSON payload."
+    
+    # Define a strict JSON schema for Ollama to follow
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "file_path": {
+                "type": "string",
+                "description": "The relative path to the source file or configuration being patched (e.g. app/Dockerfile or requirements.txt)"
+            },
+            "new_content": {
+                "type": "string",
+                "description": "The exact full replacement text content of the target file with the security fixes fully implemented."
+            }
+        },
+        "required": ["file_path", "new_content"]
+    }
     
     try:
         response = client.chat.completions.create(
@@ -44,13 +59,17 @@ def run_agent():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.1
+            temperature=0.1,
+            # FORCE OLLAMA TO FOLLOW SCHEMA
+            response_format={
+                "type": "json_object",
+                "schema": json_schema
+            }
         )
         
         raw_content = response.choices[0].message.content.strip()
         print(f"[AI DEBUG] Raw Model Output:\n{raw_content}\n")
         
-        # Regex cleanup hook: Extract raw JSON content if the model used Markdown wrappers
         json_match = re.search(r'\{.*\}', raw_content, re.DOTALL)
         if json_match:
             clean_json = json_match.group(0)
@@ -63,8 +82,8 @@ def run_agent():
         
         if file_to_fix and fixed_content:
             print(f"[AI AGENT] Applying local Ollama self-healing fix to: {file_to_fix}")
-            # Ensure target parent directories exist before writing
-            os.makedirs(os.path.dirname(file_to_fix), exist_ok=True)
+            if os.path.dirname(file_to_fix):
+                os.makedirs(os.path.dirname(file_to_fix), exist_ok=True)
             with open(file_to_fix, 'w') as f:
                 f.write(fixed_content)
         else:
