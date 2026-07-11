@@ -41,9 +41,12 @@ def run_agent():
         "fixing application syntax formatting, and upgrading package version numbers to comply with stable software formats.\n\n"
         "CRITICAL INSTRUCTIONS:\n"
         "1. You must choose EXACTLY ONE target file name from the provided repository files list to patch.\n"
-        "2. Do NOT invent new directory names. Use the exact relative path strings provided.\n"
-        "3. You must output the entire FULL file contents in your response. Your output must be a complete drop-in replacement.\n"
-        "4. You must output a single JSON object containing 'file_path' and 'new_content'. Do not output any other schema layout."
+        "2. Do NOT invent new directory names outside the provided list. You are strictly forbidden from writing to paths like /etc/apt/.\n"
+        "3. If you encounter Linux operating system or base-image package vulnerabilities (e.g., debian, alpine, apt, sources.list, apk), "
+        "you MUST apply those updates by editing the repository's 'Dockerfile'. For example, add a 'RUN sed -i ...' or 'RUN apt-get update' "
+        "command inside the Dockerfile content, or upgrade the base image tag (e.g., switch to a newer stable or pinned digest release).\n"
+        "4. You must output the entire FULL file contents in your response. Your output must be a complete drop-in replacement.\n"
+        "5. You must output a single JSON object containing 'file_path' and 'new_content'. Do not output any other schema layout."
     )
     
     user_prompt = (
