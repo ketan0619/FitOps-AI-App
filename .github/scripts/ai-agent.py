@@ -80,7 +80,7 @@ def run_agent():
             }
         )
         
-        raw_content = response.choices.message.content.strip()
+        raw_content = response.choices[0].message.content.strip()
         print(f"[AI DEBUG] Raw Model Output:\n{raw_content}\n")
         
         json_match = re.search(r'\{.*\}', raw_content, re.DOTALL)
