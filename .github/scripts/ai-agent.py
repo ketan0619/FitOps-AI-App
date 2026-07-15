@@ -1,4 +1,4 @@
-# .github/scripts/ai_agent.py
+# .github/scripts/ai-agent.py
 import os
 import sys
 import json
@@ -42,9 +42,7 @@ def run_agent():
         "CRITICAL INSTRUCTIONS:\n"
         "1. You must choose EXACTLY ONE target file name from the provided repository files list to patch.\n"
         "2. Do NOT invent new directory names outside the provided list. You are strictly forbidden from writing to paths like /etc/apt/.\n"
-        "3. If you encounter Linux operating system or base-image package vulnerabilities (e.g., debian, alpine, apt, sources.list, apk), "
-        "you MUST apply those updates by editing the repository's 'Dockerfile'. For example, add a 'RUN sed -i ...' or 'RUN apt-get update' "
-        "command inside the Dockerfile content, or upgrade the base image tag (e.g., switch to a newer stable or pinned digest release).\n"
+        "3. If you see system/mirror issues, apply those updates by editing the repository's 'Dockerfile'.\n"
         "4. You must output the entire FULL file contents in your response. Your output must be a complete drop-in replacement.\n"
         "5. You must output a single JSON object containing 'file_path' and 'new_content'. Do not output any other schema layout."
     )
@@ -93,26 +91,55 @@ def run_agent():
         file_to_fix = result.get("file_path", "").strip()
         fixed_content = result.get("new_content")
         
-        # ─── PATH NORMALIZER HOOK ───
-        # Extract just the pure base file name (e.g., 'requirements.txt' from '/path/to/python-pkg/requirements.txt')
-        base_filename = os.path.basename(file_to_fix)
+        # ─── INTERCEPTOR & OVERRIDE GUARD ───
+        # If the model insists on fixing host apt configs, find your real Dockerfile and modify it instead
+        if "sources.list" in file_to_fix or "/etc/" in file_to_fix:
+            print("[AI OVERRIDE] Intercepted host file system modification attempt. Redirecting patch to Dockerfile...")
+            
+            # Find the actual Dockerfile path inside your repository mapping
+            dockerfile_path = next((f for f in valid_repo_files if "Dockerfile" in f), None)
+            
+            if dockerfile_path:
+                file_to_fix = dockerfile_path
+                # Read the existing content of your Dockerfile
+                with open(dockerfile_path, 'r') as df_read:
+                    current_dockerfile = df_read.read()
+                
+                # Append a RUN instruction that mirrors the secure configurations into the build layer
+                mirror_patch = (
+                    "\n# AI Autonomously Patched Debian Security Mirrors\n"
+                    "RUN echo 'deb http://deb.debian.org/debian bookworm main contrib non-free' > /etc/apt/sources.list && \\\n"
+                    "    echo 'deb http://security.debian.org/debian-security bookworm-security main contrib non-free' >> /etc/apt/sources.list\n"
+                )
+                
+                # Inject the fix right before any package installs or at the end
+                if "FROM" in current_dockerfile:
+                    lines = current_dockerfile.split('\n')
+                    lines.insert(1, mirror_patch)
+                    fixed_content = '\n'.join(lines)
+                else:
+                    fixed_content = current_dockerfile + mirror_patch
+            else:
+                print("[AI ERROR] Interceptor failed: No Dockerfile found in the repository list.")
+                sys.exit(1)
         
-        # Look if a file with this identical base name exists inside your valid repository structure
-        matched_path = None
-        for repo_file in valid_repo_files:
-            if repo_file == file_to_fix or os.path.basename(repo_file) == base_filename:
-                matched_path = repo_file
-                break
-        
-        if matched_path:
-            file_to_fix = matched_path
+        # Standard Normalizer Fallback if it wasn't a sources.list error
+        else:
+            base_filename = os.path.basename(file_to_fix)
+            matched_path = None
+            for repo_file in valid_repo_files:
+                if repo_file == file_to_fix or os.path.basename(repo_file) == base_filename:
+                    matched_path = repo_file
+                    break
+            if matched_path:
+                file_to_fix = matched_path
             
         if file_to_fix and fixed_content:
             if file_to_fix not in valid_repo_files or file_to_fix.endswith('.log') or '.github' in file_to_fix:
                 print(f"[AI AGENT] Safety trigger: Model tried to write out-of-bounds or protected file: {file_to_fix}")
                 sys.exit(1)
                 
-            print(f"[AI AGENT] Applying normalized local Ollama self-healing fix to: {file_to_fix}")
+            print(f"[AI AGENT] Applying self-healing patch execution to: {file_to_fix}")
             with open(file_to_fix, 'w') as f:
                 f.write(fixed_content)
         else:
