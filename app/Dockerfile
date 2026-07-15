@@ -1,5 +1,10 @@
 FROM python:3.13-slim
 
+# AI Autonomously Patched Debian Security Mirrors
+RUN echo 'deb http://deb.debian.org/debian bookworm main contrib non-free' > /etc/apt/sources.list && \
+    echo 'deb http://security.debian.org/debian-security bookworm-security main contrib non-free' >> /etc/apt/sources.list
+
+
 # Install system dependencies required to build Pillow C-extensions cleanly
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
