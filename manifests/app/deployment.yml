@@ -36,7 +36,7 @@ spec:
               cpu: "100m"
       containers:
         - name: fitops-ai
-          image: ketan0619/fitops-ai-app:a7cbcea
+          image: ketan0619/fitops-ai-app:4e479ff
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
