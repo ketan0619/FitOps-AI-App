@@ -158,7 +158,7 @@ jobs:
 
      - name: Update Kubernetes deployment manifest
        run: |
-         sed - i "s|image: ${{ env.DOCKERHUB_REPO }}:.*|image: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}|" ./manifests/app/deployment.yml
+         sed -i "s|image: ${{ env.DOCKERHUB_REPO }}:.*|image: ${{ env.DOCKERHUB_REPO }}:${{ steps.tag.outputs.sha_short }}|" ./manifests/app/deployment.yml
 
      - name: Commit updated manifest
        run: |
