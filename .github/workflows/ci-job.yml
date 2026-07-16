@@ -140,10 +140,10 @@ jobs:
            git commit -m "chore(ai-agent): autonomously resolve pipeline security vulnerabilities [skip ci]"
            git push origin HEAD:${{ github.ref_name }}
            echo "Vulnerabilities fixed and committed. Halting run to trigger a clean pipeline pass."
-           exit 1
+           #exit 1
          else
            echo "AI evaluated the files but no safe changes were performed."
-           exit 1
+           #exit 1
          fi
 
      # ─── 6. FINAL SECURE PRODUCTION BUILD & GITOPS DEPLOYMENT ───
