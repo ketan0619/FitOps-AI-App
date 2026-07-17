@@ -14,7 +14,21 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "fitops-secret")
+# FIX #1: Register the Secret Key inside the config dictionary explicitly
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "fitops-secret")
+
+# FIX #2: Configure Centralized Database-Backed Sessions for Multi-Replica EKS Pods
+app.config['SESSION_TYPE'] = 'sqlalchemy'
+app.config['SESSION_SQLALCHEMY'] = db
+app.config['SESSION_PERMANENT'] = False
+
+# Resolve the DB connection string purely from environment variables
+app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize extensions in order
+db.init_app(app)
+Session(app) # Initializes the central state manager cleanly
 
 # ---------- LOGIN REQUIRED DECORATOR ----------
 def login_required(f):
