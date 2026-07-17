@@ -26,6 +26,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+#fix
 # Initialize extensions in order
 db.init_app(app)
 Session(app) # Initializes the central state manager cleanly
