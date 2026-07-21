@@ -41,8 +41,8 @@ def run_agent():
         "fixing application syntax formatting, and upgrading package version numbers to comply with stable software formats.\n\n"
         "CRITICAL INSTRUCTIONS:\n"
         "1. You must choose EXACTLY ONE target file name from the provided repository files list to patch.\n"
-        "2. Do NOT invent new directory names outside the provided list. You are strictly forbidden from writing to paths like /etc/apt/.\n"
-        "3. If you see system/mirror issues, apply those updates by editing the repository's 'Dockerfile'.\n"
+        "2. Do NOT invent new directory names outside the provided list.\n"
+        "3. If you see Python dependency vulnerabilities (like pillow, pip-audit, python-pkg), update the version number inside 'requirements-DevSecOps.txt' or 'app/requirements.txt'.\n"
         "4. You must output the entire FULL file contents in your response. Your output must be a complete drop-in replacement.\n"
         "5. You must output a single JSON object containing 'file_path' and 'new_content'. Do not output any other schema layout."
     )
@@ -91,39 +91,41 @@ def run_agent():
         file_to_fix = result.get("file_path", "").strip()
         fixed_content = result.get("new_content")
         
-        # ─── INTERCEPTOR & OVERRIDE GUARD ───
-        # If the model insists on fixing host apt configs, find your real Dockerfile and modify it instead
+        # ─── INTERCEPTOR #1: SOURCES.LIST OVERRIDE ───
         if "sources.list" in file_to_fix or "/etc/" in file_to_fix:
             print("[AI OVERRIDE] Intercepted host file system modification attempt. Redirecting patch to Dockerfile...")
+            dockerfile_path = next((f for f in valid_repo_files if "Dockerfile" in f), "app/Dockerfile")
+            file_to_fix = dockerfile_path
+            with open(dockerfile_path, 'r') as df_read:
+                current_dockerfile = df_read.read()
+            mirror_patch = (
+                "\n# AI Autonomously Patched Debian Security Mirrors\n"
+                "RUN echo 'deb http://debian.org bookworm main contrib non-free' > /etc/apt/sources.list && \\\n"
+                "    echo 'deb http://debian.org bookworm-security main contrib non-free' >> /etc/apt/sources.list\n"
+                "RUN apt-get update && apt-get install -y --no-install-recommends libblkid1 util-linux\n"
+            )
+            fixed_content = current_dockerfile + mirror_patch
+
+        # ─── INTERCEPTOR #2: DEPENDENCY OVERRIDE (NEW) ───
+        elif "python-pkg" in file_to_fix or "pillow" in file_to_fix or "requirements" in file_to_fix:
+            print("[AI OVERRIDE] Intercepted dependency package modification attempt. Redirecting patch to requirements text configurations...")
+            # Look for your real application requirements mapping file
+            target_req = next((f for f in valid_repo_files if "requirements-DevSecOps.txt" in f), None)
+            if not target_req:
+                target_req = next((f for f in valid_repo_files if "requirements.txt" in f), "app/requirements.txt")
             
-            # Find the actual Dockerfile path inside your repository mapping
-            dockerfile_path = next((f for f in valid_repo_files if "Dockerfile" in f), None)
+            file_to_fix = target_req
+            # Autonomously bump or ensure pillow version is safe inside your deployment file
+            with open(target_req, 'r') as req_read:
+                current_reqs = req_read.read()
             
-            if dockerfile_path:
-                file_to_fix = dockerfile_path
-                # Read the existing content of your Dockerfile
-                with open(dockerfile_path, 'r') as df_read:
-                    current_dockerfile = df_read.read()
-                
-                # Append a RUN instruction that mirrors the secure configurations into the build layer
-                mirror_patch = (
-                    "\n# AI Autonomously Patched Debian Security Mirrors\n"
-                    "RUN echo 'deb http://deb.debian.org/debian bookworm main contrib non-free' > /etc/apt/sources.list && \\\n"
-                    "    echo 'deb http://security.debian.org/debian-security bookworm-security main contrib non-free' >> /etc/apt/sources.list\n"
-                )
-                
-                # Inject the fix right before any package installs or at the end
-                if "FROM" in current_dockerfile:
-                    lines = current_dockerfile.split('\n')
-                    lines.insert(1, mirror_patch)
-                    fixed_content = '\n'.join(lines)
-                else:
-                    fixed_content = current_dockerfile + mirror_patch
+            if "pillow" in current_reqs.lower():
+                fixed_content = re.sub(r'(?i)pillow==\d+\.\d+\.\d+', 'pillow==12.2.0', current_reqs)
+                fixed_content = re.sub(r'(?i)pillow[>=<=:\s]*\d+\.\d+\.\d*', 'pillow==12.2.0', fixed_content)
             else:
-                print("[AI ERROR] Interceptor failed: No Dockerfile found in the repository list.")
-                sys.exit(1)
-        
-        # Standard Normalizer Fallback if it wasn't a sources.list error
+                fixed_content = current_reqs + "\npillow==12.2.0\n"
+
+        # ─── STANDARD PATH NORMALIZER FALLBACK ───
         else:
             base_filename = os.path.basename(file_to_fix)
             matched_path = None
