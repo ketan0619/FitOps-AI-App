@@ -110,8 +110,11 @@ jobs:
          ollama serve > /dev/null 2>&1 &
          echo "Waiting for Ollama to spin up..."
          sleep 5
-         if [ "${{ steps.cache-ollama.outputs.cache-hit }}" != "true" ]; then
+         if ! ollama list | grep -q "qwen2.5-coder:7b"; then
+           echo "[OLLAMA] Model missing on disk. Downloading layers..."
            ollama pull qwen2.5-coder:7b
+         else
+           echo "[OLLAMA] Model verified successfully from cache storage."
          fi
 
      - name: Execute AI Auto-Fix Engine
