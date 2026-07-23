@@ -1,4 +1,4 @@
-#App Code
+# Application Code
 from flask import (Flask, render_template, request,
  redirect, session, send_file, jsonify)
 from flask_session import Session
@@ -15,15 +15,12 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 app = Flask(__name__)
 
-# ---------- DATABASE URI RESOLUTION FUNCTION (MOVED UP) ----------
+# ---------- 1. DATABASE URI RESOLUTION FUNCTION ----------
 _db_uri = None
 
 def get_db_uri():
     """
     Resolve the DB connection string purely from environment variables.
-    No AWS / Secrets Manager calls here — this app's DB is not on AWS,
-    and the credentials are already injected as env vars via
-    GitHub Actions / Kubernetes secrets.
     """
     global _db_uri
     if _db_uri:
@@ -36,7 +33,7 @@ def get_db_uri():
     # Fallback: build it from individual pieces
     db_user = os.getenv("MYSQL_USER", "fitops")
     db_pass = os.getenv("MYSQL_PASSWORD", "fitops123")
-    db_host = os.getenv("MYSQL_HOST", "mysql")
+    db_host = os.getenv("MYSQL_HOST", "mysql-service") # Updated to point to your EKS service
     db_port = os.getenv("MYSQL_PORT", "3306")
     db_name = os.getenv("MYSQL_DATABASE", "fitopsdb")
     _db_uri = (
@@ -44,25 +41,23 @@ def get_db_uri():
     )
     return _db_uri
 
-# ---------- FLASK CONFIGURATIONS ----------
-# FIX #1: Register the Secret Key inside the config dictionary explicitly
+# ---------- 2. FLASK CONFIGURATIONS ----------
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "fitops-secret")
 
-# FIX #2: Configure Centralized Database-Backed Sessions for Multi-Replica EKS Pods
+# Configure Centralized Database-Backed Sessions for Multi-Replica EKS Pods
 app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SESSION_SQLALCHEMY'] = db
 app.config['SESSION_PERMANENT'] = False
 
-# Resolve the DB connection string purely from environment variables
+# Resolve the DB connection string (Now it compiles cleanly!)
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#fix
-# Initialize extensions in order
+# Initialize extensions ONCE and ONLY ONCE
 db.init_app(app)
-Session(app) # Initializes the central state manager cleanly
+Session(app) 
 
-# ---------- LOGIN REQUIRED DECORATOR ----------
+# ---------- 3. LOGIN REQUIRED DECORATOR ----------
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -71,8 +66,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ---------- DATABASE INITIALIZATION & RETRY LOOP ----------
-# Added retry logic to wait for MySQL to finish booting up
+# ---------- 4. DATABASE INITIALIZATION & RETRY LOOP ----------
 with app.app_context():
     for i in range(10): # Try 10 times
         try:
