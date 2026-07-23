@@ -69,10 +69,6 @@ def get_db_uri():
     )
     return _db_uri
 
-app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
-
 # Added retry logic to wait for MySQL to finish booting up
 with app.app_context():
     for i in range(10): # Try 10 times
