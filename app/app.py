@@ -15,12 +15,15 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 app = Flask(__name__)
 
-# ---------- 1. DATABASE URI RESOLUTION FUNCTION ----------
+# ---------- 1. DATABASE URI RESOLUTION FUNCTION (MOVED TO TOP) ----------
 _db_uri = None
 
 def get_db_uri():
     """
     Resolve the DB connection string purely from environment variables.
+    No AWS / Secrets Manager calls here — this app's DB is not on AWS,
+    and the credentials are already injected as env vars via
+    GitHub Actions / Kubernetes secrets.
     """
     global _db_uri
     if _db_uri:
@@ -33,7 +36,7 @@ def get_db_uri():
     # Fallback: build it from individual pieces
     db_user = os.getenv("MYSQL_USER", "fitops")
     db_pass = os.getenv("MYSQL_PASSWORD", "fitops123")
-    db_host = os.getenv("MYSQL_HOST", "mysql-service") # Updated to point to your EKS service
+    db_host = os.getenv("MYSQL_HOST", "mysql-service") # Pointing directly to your EKS service discovery
     db_port = os.getenv("MYSQL_PORT", "3306")
     db_name = os.getenv("MYSQL_DATABASE", "fitopsdb")
     _db_uri = (
@@ -41,7 +44,9 @@ def get_db_uri():
     )
     return _db_uri
 
+
 # ---------- 2. FLASK CONFIGURATIONS ----------
+# Register the Secret Key inside the config dictionary explicitly
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "fitops-secret")
 
 # Configure Centralized Database-Backed Sessions for Multi-Replica EKS Pods
@@ -49,13 +54,14 @@ app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SESSION_SQLALCHEMY'] = db
 app.config['SESSION_PERMANENT'] = False
 
-# Resolve the DB connection string (Now it compiles cleanly!)
+# Now compiles cleanly because get_db_uri is defined above!
 app.config['SQLALCHEMY_DATABASE_URI'] = get_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions ONCE and ONLY ONCE
 db.init_app(app)
-Session(app) 
+Session(app) # Initializes the central state manager cleanly
+
 
 # ---------- 3. LOGIN REQUIRED DECORATOR ----------
 def login_required(f):
@@ -66,7 +72,9 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 # ---------- 4. DATABASE INITIALIZATION & RETRY LOOP ----------
+# Added retry logic to wait for MySQL to finish booting up inside EKS
 with app.app_context():
     for i in range(10): # Try 10 times
         try:
@@ -82,7 +90,8 @@ with app.app_context():
     else:
         print("Could not connect to the database after 10 attempts.")
 
-# ---------- MAIN / DASHBOARD ----------
+
+# ---------- 5. MAIN / DASHBOARD ----------
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def dashboard():
@@ -90,7 +99,6 @@ def dashboard():
     if not user:
         return redirect('/logout')
         
-    # 1. Look for user's database footprint to build persistent baseline parameters
     latest_progress = Progress.query.filter_by(user_id=user.id).order_by(Progress.id.desc()).first()
     
     initial_inputs = {
@@ -101,11 +109,9 @@ def dashboard():
         'diet_type': 'normal'
     }
     
-    # Pull existing layout variables out of the active user session if they exist
     if 'last_input' in session:
         initial_inputs.update(session['last_input'])
         
-    # 2. Form Submission Action Execution Window
     if request.method == 'POST':
         try:
             weight = float(request.form.get('weight', 0))
@@ -115,7 +121,6 @@ def dashboard():
             activity = request.form.get('activity', 'moderate')
             diet_type = request.form.get('diet_type', 'normal')
             
-            # Cache current metrics into the session to persist them inside form fields
             session['last_height'] = height
             session['last_input'] = {
                 'age': str(age),
@@ -125,12 +130,10 @@ def dashboard():
                 'diet_type': diet_type
             }
             
-            # Run Matrix Math Algorithms
             bmi = calculate_bmi(weight, height)
             plan = fitness_plan(bmi, age, gender, diet_type)
             calories = calories_needed(weight, height, age, gender, activity)
             
-            # Determine explicit visual index categories
             if bmi < 18.5: category = "Underweight"
             elif bmi < 25: category = "Normal"
             elif bmi < 30: category = "Overweight"
@@ -145,18 +148,15 @@ def dashboard():
             }
             session['report'] = result
             
-            # Log historical timeline metrics into database
             progress = Progress(user_id=user.id, bmi=bmi, weight=weight, calories=calories)
             db.session.add(progress)
             db.session.commit()
             
-            # Redirect straight to the results engine view page
             return render_template('result.html', result=result)
             
         except Exception as e:
             return f"Error executing biometric matrix: {str(e)}", 400
             
-    # 3. GET Fallback Render Mode (Returns values to Home Dashboard)
     fallback_result = session.get('report', None)
     if not fallback_result and latest_progress:
         if latest_progress.bmi < 18.5: cat = "Underweight"
@@ -172,28 +172,24 @@ def dashboard():
         
     return render_template('dashboard.html', result=fallback_result, inputs=initial_inputs)
 
-# ---------- LOGIN ----------
+
+# ---------- 6. LOGIN ----------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = User.query.filter_by(
-            username=request.form['username']
-        ).first()
-        if user and check_password_hash(
-            user.password, request.form['password']
-        ):
+        user = User.query.filter_by(username=request.form['username']).first()
+        if user and check_password_hash(user.password, request.form['password']):
             session['user'] = user.username
             return redirect('/')
         return "Invalid username or password"
     return render_template('login.html')
 
-# ---------- REGISTER ----------
+
+# ---------- 7. REGISTER ----------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        existing = User.query.filter_by(
-            username=request.form['username']
-        ).first()
+        existing = User.query.filter_by(username=request.form['username']).first()
         if existing:
             return "Username already exists"
         user = User(
@@ -205,17 +201,16 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
-# ---------- CHATBOT ----------
+
+# ---------- 8. CHATBOT ----------
 @app.route('/chat', methods=['POST'])
 @login_required
 def chat():
     msg = request.json.get("message", "").strip()
     if not msg:
         return jsonify({"reply": "Input clear communication protocol parameters."})
-
     ollama_base = os.environ.get("OLLAMA_URL", "http://localhost:11434")
     
-    # Extract structural metrics content from user session
     report = session.get('report', None)
     biometric_context = "No metrics calculated yet."
     
@@ -226,8 +221,7 @@ def chat():
             f"User's Primary Goal: {report.get('goal', 'N/A')}\n"
             f"User's Ideal Weight Range: {report.get('ideal', 'N/A')}"
         )
-
-    # Tight, unbreachable ruleset specifically tuned for small parameter models
+        
     system_rules = (
         "You are the FitOps AI Cyberpunk Fitness Expert Coach. Follow these instructions strictly:\n"
         "1. Answer the user's message directly, professionally, and enthusiastically.\n"
@@ -236,16 +230,13 @@ def chat():
         "4. Do NOT output metadata like 'Sure, here's an answer:' or 'Assistant:'. Reply ONLY with your coach persona advice.\n\n"
         f"[USER BIOMETRICS MATRIX]:\n{biometric_context}"
     )
-
     try:
-        # One-shot training sequence forces TinyLlama to copy the correct output style
         response = requests.post(
             f"{ollama_base}/api/chat",
             json={
                 "model": "tinyllama",
                 "messages": [
                     {"role": "system", "content": system_rules},
-                    # One-Shot Example block teaches the model not to leak system tokens
                     {"role": "user", "content": "hello coach how are you"},
                     {"role": "assistant", "content": "Systems fully online and ready to push limits! I am here to help you optimize your recovery split and crush your training targets. Let me know what parameters we are tracking today!"},
                     {"role": "user", "content": msg}
@@ -253,7 +244,7 @@ def chat():
                 "stream": False,
                 "options": {
                     "num_predict": 120,
-                    "temperature": 0.1,  # Lowering temperature down to 0.1 maximizes logical rule compliance
+                    "temperature": 0.1,
                     "top_p": 0.9
                 }
             },
@@ -262,7 +253,6 @@ def chat():
         
         reply = response.json().get("message", {}).get("content", "").strip()
         
-        # Post-generation filtering safeguards to catch fallback text leakage
         prefixes_to_clean = [
             "Sure, here's a possible answer for the user's message:",
             "Sure! Here is a possible answer:",
@@ -273,13 +263,13 @@ def chat():
         for prefix in prefixes_to_clean:
             if reply.startswith(prefix):
                 reply = reply[len(prefix):].strip()
-                
+
         if not reply:
             reply = "System matrix compiled cleanly. Let me know how to optimize your training parameters."
 
     except Exception as e:
         reply = f"Telemetry Error: Unable to sync with Coach AI engine cores. {str(e)}"
-        
+
     return jsonify({"reply": reply})
 
 
